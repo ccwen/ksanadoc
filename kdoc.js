@@ -30,17 +30,17 @@ var createDocument = function(opts) {
 		//markups=markupEvolve(markups,revisions);
 	}
 
-
 	var getRevisions=function() {
 		return markups.filter(function(m){ return (m.type=="REV")});
 	}
 
 	//interfaces
+	doc.__evolve__=evolve; //internal use only
+
 	doc.getText=getText;
 	doc.getId=getId;
 	doc.addRevision=addRevision;
 	doc.getRevisions=getRevisions;
-	doc.__evolve=evolve;
 
 	return doc;
 }
@@ -64,7 +64,7 @@ var Database = function() {
 
 	var evolveDocument=function(d,opts) {
 		var nextgen=newDocument(d);
-		nextgen.__evolve( d.getRevisions() );
+		nextgen.__evolve__( d.getRevisions() );
 		return nextgen;
 	}
 
