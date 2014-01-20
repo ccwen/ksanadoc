@@ -20,10 +20,11 @@ var createDocument = function(opts) {
 	var getId=function() {	return id;	}
 
 	var addRevision=function(start,len,str) {
-		markups.push({type:"REV", start:start, len:len , str:str} );
-		console.log(markups)
+		markups.push({isRevision:true, start:start, len:len , str:str} );
 	}
-
+	var clearRevisions=function() {
+		markups=markups.filter(function(m){ return (!m.isRevision)});
+	}
 	var evolve=function(revisions) {
 		text=textEvolve(text, revisions);
 		//evolve markups
@@ -31,7 +32,7 @@ var createDocument = function(opts) {
 	}
 
 	var getRevisions=function() {
-		return markups.filter(function(m){ return (m.type=="REV")});
+		return markups.filter(function(m){ return (m.isRevision)});
 	}
 
 	//interfaces
@@ -41,6 +42,7 @@ var createDocument = function(opts) {
 	doc.getId=getId;
 	doc.addRevision=addRevision;
 	doc.getRevisions=getRevisions;
+	doc.clearRevisions=clearRevisions;
 
 	return doc;
 }
