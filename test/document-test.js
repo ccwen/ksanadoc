@@ -91,10 +91,11 @@ QUnit.test('evolve document',function(){
 
 	mawang=db.evolveDocument(daodejin)
 	equal(mawang.getInscription(),"道可道非恆道也名可名非恆名也");
-	markups=mawang.getMarkups();
+	var m1=mawang.getMarkup(0);
+	var m2=mawang.getMarkup(1);
 
-	equal(markups[0].start, 2);
-	equal(markups[1].start, 9); 
+	equal(m1.start, 2);
+	equal(m2.start, 9); 
 
 	daodejin.clearRevisions(); //prepare for new evolution
 	daodejin.addRevision(3,0,"，");
@@ -117,9 +118,9 @@ QUnit.test('clear markup by range',function() {
 	daodejin.addMarkup(5,1,{empty:true});
 
 	daodejin.clearMarkups(0,3);
-	equal(daodejin.getMarkups().length,1);
+	equal(daodejin.getMarkupCount(),1);
 	daodejin.clearMarkups(5,1);
-	equal(daodejin.getMarkups().length,0)
+	equal(daodejin.getMarkupCount(),0)
 
 });
 QUnit.test('validate markup position',function() {
@@ -131,17 +132,17 @@ QUnit.test('validate markup position',function() {
 	daodejin.addMarkup(13,2,{empty:true});
 	daodejin.addMarkup(10,10,{empty:true});
 
-	var markups=daodejin.getMarkups();
-	equal(markups[0].start,0,'markup 1 start');
-	equal(markups[0].len,origin.length,'markup 1 length');
-	equal(markups[1].start,0,'markup 2 start');
-	equal(markups[1].len,origin.length,'markup 2 length');
-	equal(markups[2].start,0,'markup 3 start');
-	equal(markups[2].len,5,'markup 3 length');
-	equal(markups[3].start,12,'markup 4 start');
-	equal(markups[3].len,0,'markup 4 length');
-	equal(markups[4].start,10,'markup 5 start');
-	equal(markups[4].len,2,'markup 5 length');
+	var m=function(i) { return daodejin.getMarkup(i)};
+	equal(m(0).start,0,'markup 1 start');
+	equal(m(0).len,origin.length,'markup 1 length');
+	equal(m(1).start,0,'markup 2 start');
+	equal(m(1).len,origin.length,'markup 2 length');
+	equal(m(2).start,0,'markup 3 start');
+	equal(m(2).len,5,'markup 3 length');
+	equal(m(3).start,12,'markup 4 start');
+	equal(m(3).len,0,'markup 4 length');
+	equal(m(4).start,10,'markup 5 start');
+	equal(m(4).len,2,'markup 5 length');
 
 });
 QUnit.test('markups devolve to parent  ',function(){
@@ -161,7 +162,7 @@ QUnit.test('markups devolve to parent  ',function(){
 	mawang.addMarkup(9,1,{name:"動詞"});
 	mawang.addMarkup(5,3,{name:"道也名"}); 
 
-	var M=db.migrate(mawang);
+	var M=db.downgrade(mawang); //downgrade to parent
 	
 	equal(M[0].start,12,'markup 1 start');
 	equal(M[0].len,0,'markup 1 len'); //vanish
