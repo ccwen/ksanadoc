@@ -1,31 +1,28 @@
 /*
   Multiversion text with external durable markups
 */
+var createMarkup=function(textlen,start,len,payload) {
+	if (textlen==-1) textlen=1024*1024*1024; //max string size 1GB
+	//the only function create a new markup instance, be friendly to V8 Hidden Class
 
-var reverseRevision=function(revs,parenttext) {
-	var reversed=[];
-	revs.sort(function(m1,m2){return m1.start-m2.start});
-	var offset=0;
-	revs.map(function(r){
-		m=cloneMarkup(r);
-		if (parenttext) {
-			newtext=parenttext.substr(r.start,r.len);
-		} else {//just a dummy text with same len
-			newtext=Array(m.len+1).join("-");
-		}
-		m.start+=offset;
-		m.len=m.payload.text.length;
-		m.payload.text=newtext;
-		offset+=m.len-newtext.length;
-		reversed.push(m);
-	})
-	return reversed;
+	if (len<0) len=textlen;
+	if (start<0) start=0;
+	if (start>textlen) start=textlen;
+	if (start+len>textlen) {
+		len-=start+len-textlen;
+		if (len<0) len=0;
+	}
+
+	return {start:start,len:len,payload:payload};
 }
-var evolveMarkup=function(markup, rev) {
-	end=markup.start+markup.len;
-	newlen=(rev.payload.text.length-rev.len);
-	revend=rev.start+rev.len;
+var cloneMarkup=function(m) {
+	return createMarkup(-1,m.start,m.len,JSON.parse(JSON.stringify(m.payload)));
+}
 
+var migrateMarkup=function(markup, rev) {
+	var end=markup.start+markup.len;
+	var newlen=(rev.payload.text.length-rev.len);
+	var revend=rev.start+rev.len;
 	var m=cloneMarkup(markup); //return a new copy
 
 	if (end<=rev.start) return m;
@@ -52,127 +49,187 @@ var evolveMarkup=function(markup, rev) {
 		return m;
 	}
 }
-var evolveText=function(sourcetext ,revisions) {
+var upgradeText=function(sourcetext ,revisions) {
 	revisions.sort(function(r1,r2){return r2.start-r1.start});
-	var text=sourcetext;
+	var text2=sourcetext;
 	revisions.map(function(r){
-		text=text.substring(0,r.start)+r.payload.text+text.substring(r.start+r.len);
+		text2=text2.substring(0,r.start)+r.payload.text+text2.substring(r.start+r.len);
 	});
-	return text;
+	return text2;
 }
-var createMarkup=function(textlen,start,len,payload) {
-	if (textlen==-1) textlen=1024*1024*1024; //max string size 1GB
-	//the only function create a new markup instance, be friendly to V8 Hidden Class
 
-	if (len<0) len=textlen;
-	if (start<0) start=0;
-	if (start>textlen) start=textlen;
-	if (start+len>textlen) {
-		len-=start+len-textlen;
-		if (len<0) len=0;
+var addMarkup=function(start,len,payload) {
+	this.getMarkups().push(createMarkup(this.getInscription().length,start, len, payload ));
+}
+var addRevision=function(start,len,str) {
+	var valid=this.getRevisions().every(function(r) {
+		return (r.start+r.len<=start || r.start>=start+len);
+	})
+	var newrevision=createMarkup(this.getInscription().length,start,len,{text:str});
+	if (valid) this.getRevisions().push(newrevision);
+	return valid;
+}
+
+var addMarkups=function(newmarkups,opts) {
+	if (opts &&ops.clear) this.clearMarkups();
+	for (var i in newmarkups) {
+		m=newmarkups[i];
+		var newmarkup=createMarkup(this.getInscription().length, m.start, m.len, m.payload )
+		this.getMarkups().push(newmarkup);
+	};
+}
+
+var addRevisions=function(newrevisions,opts) {
+	if (opts &&ops.clear) this.clearRevisions();
+	for (var i in newrevisions) {
+		var m=newrevisions[i];
+		var newrevision=createMarkup(this.getInscription().length, m.start, m.len, m.payload );
+		this.getRevisions().push(newrevision);	
 	}
-
-	return {start:start,len:len,payload:payload};
+}	
+var downgradeMarkups=function(markups) {
+	var downgraded=[];
+	for (var i in markups) {
+		var m=markups[i];
+		this.getRevert().map(function(rev){
+			m=migrateMarkup(m,rev);
+		});
+		downgraded.push(m);
+	}
+	return downgraded;
 }
-var cloneMarkup=function(m) {
-	return createMarkup(-1,m.start,m.len,JSON.parse(JSON.stringify(m.payload)));
+var upgradeMarkups=function(markups,revs) {
+	var migratedmarkups=[];
+	markups.map(function(m){
+		revs.map(function(revs){
+			m=migrateMarkup(m,revs);
+		});
+		migratedmarkups.push(m);
+	})
+	return migratedmarkups;
 }
-var createDocument = function(opts) {
-	var text="";
 
-	opts=opts||{};
-	parentId=0;
-	if (opts.parent) {
-		text=opts.parent.getText();
-		parentId=opts.parent.getId();
-	} 
+var upgradeMarkupsTo=function(M,targetDoc) {
+	var d=targetDoc, lineage=[], db=this.getDB();
+	while (true) {
+			var pid=d.getParentId();
+			if (!pid) break; // root	
+			if (pid==getId())break;
+			lineage.unshift(d);
+			d=db.getDocument(pid);
+	}
+	lineage.map(function(D){
+		var parentDoc=db.getDocument(D.getParentId());
+		var rev=revertRevision(D.getRevert(),parentDoc.getInscription());
+		M=parentDoc.upgradeMarkups(M,rev);
+	})
+	return M;
+}
+
+var downgradeMarkupsTo=function(M,targetDoc) {
+	var d=this,db=this.getDB();
+	var ancestorId=targetDoc.getId();
+	while (true) {
+			var pid=d.getParentId();
+			if (!pid) break; // root	
+			M=d.downgradeMarkups(M);
+			if (pid==ancestorId)break;
+			d=db.getDocument(pid);
+	}
+	return M;
+}
+
+var hasAncestor=function(ancestor) {
+	var ancestorId=ancestor.getId();
+	var d=this,db=this.getDB();
 	
-	var doc={};
-	opts.id=opts.id || 0;
-	var meta= {id:opts.id, parentId:parentId, date: new Date() , revisions:null};
+	while (true) {
+		if (!d.getParentId()) return false; // root	
+		if (d.getParentId()==ancestorId) return true;
+		d=db.getDocument(d.getParentId());
+	}
+	return false;
+}
 
+var getAncestors=function() {
+	var d=this,ancestor=[], db=this.getDB();
+	while (true) {
+			var pid=d.getParentId();
+			if (!pid) break; // root	
+			d=db.getDocument(pid);
+			ancestor.unshift(d);
+	}
+}
+var revertRevision=function(revs,parentinscription) {
+	var revert=[], offset=0;
+	revs.sort(function(m1,m2){return m1.start-m2.start});
+	revs.map(function(r){
+		var newinscription="";
+		var	m=cloneMarkup(r);
+		var newtext=parentinscription.substr(r.start,r.len);
+		m.start+=offset;
+		m.len=m.payload.text.length;
+		m.payload.text=newtext;
+		offset+=m.len-newtext.length;
+		revert.push(m);
+	})
+	revert.sort(function(a,b){return b.start-a.start});
+	return revert;
+}
+
+var createDocument = function(opts) {
+	var DOC={}; // the instance
+	var _inscription_="";
 	var markups=[];
 	var revisions=[];
-	var getText=function() {	return text;	}
-	var getId=function() {	return id;	}
-	var getParentId=function() {	return parentId;	}
 
-	var addMarkup=function(start,len,payload) {
-		markups.push(createMarkup(text.length,start, len, payload ));
-	}
-	var addMarkups=function(newmarkups,clear) {
-		if (clear) markups=[];
-		newmarkups.map(function(m){
-			markups.push(createMarkup(text.length, m.start, m.len, m.payload ));	
-		})
-	}
-	var addRevisions=function(newrevisions,clear) {
-		if (clear) revisions=[];
-		newrevisions.map(function(m){
-			revisions.push(createMarkup(text.length, m.start, m.len, m.payload ));	
-		})
-	}
+	opts=opts||{};
+	opts.id=opts.id || 0;
+	var parentId=0;
+	if (opts.parent) {
+		_inscription_=opts.parent.getInscription();
+		parentId=opts.parent.getId();
+	} 
+	var meta= {id:opts.id, parentId:parentId, revert:null, db: opts.db };
 
-	var addRevision=function(start,len,str) {
-		revisions.push(createMarkup(text.length,start, len, {text:str} ));
-	}
-	var clearRevisions=function() {
-		revisions=[];
-	}
-	var evolve=function(revs,M) {
-		text=evolveText(text, revs);
-		meta.revisions=revs;
-		evolvedmarkups=[];
-		M.map(function(m){
-			revs.map(function(rev){
-				m=evolveMarkup(m,rev);
-			});
-			evolvedmarkups.push(m);
-		})
-		markups=evolvedmarkups;
+	//this is the only function changing inscription,use by DB only
+	DOC.__selfEvolve__  = selfEvolve=function(revs,M) { 
+		var newinscription=upgradeText(_inscription_, revs);
+		var migratedmarkups=[];
+		meta.revert=revertRevision(revs,_inscription_);
+		_inscription_=newinscription;
+		markups=upgradeMarkups(M,revs);
 	}
 
-	var devolveMarkups=function(markups) {
-		reverse=reverseRevision(meta.revisions);
-		devolvedmarkups=[];
-		reverse.sort(function(a,b){return b.start-a.start});
-		markups.map(function(m){
-			reverse.map(function(rev){
-				m=evolveMarkup(m,rev);
-			});
-			devolvedmarkups.push(m);
-		})
-		return devolvedmarkups;
-	}
-
-	var getRevisions=function() {
-		return revisions;
-	}
-	var getMarkups=function() {
-		return markups;
-	}
-
-	//interfaces
-	doc.__evolve__=evolve; //internal use only
-
-	doc.getText=getText;
-	doc.getId=getId;
-	doc.getParentId=getParentId;
-	doc.addMarkup=addMarkup;
-	doc.addMarkups=addMarkups;
-	doc.addRevision=addRevision;
-	doc.addRevisions=addRevisions;
-	doc.getRevisions=getRevisions;
-	doc.getMarkups=getMarkups;
-	doc.devolveMarkups=devolveMarkups;
-	doc.clearRevisions=clearRevisions;
-
-	return doc;
+	DOC.getId           = function() { return meta.id;	}
+	DOC.getDB           = function() { return meta.db;	}
+	DOC.getParentId     = function() { return meta.parentId;	}
+	DOC.getMarkups      = function() { return markups	 }
+	DOC.getRevert       = function() { return meta.revert	}
+	DOC.getRevisions    = function() { return revisions;	}
+	DOC.getRevisionCount= function() { return revisions.length}
+	DOC.getInscription  = function() { return _inscription_;	}
+	DOC.clearRevisions  = function() { revisions.splice(0, revisions.length);}
+	DOC.clearMarkups    = function() { markups.splice(0, markups.length);	}
+	DOC.addMarkup=addMarkup;
+	DOC.addMarkups=addMarkups;
+	DOC.addRevision=addRevision;
+	DOC.addRevisions=addRevisions;
+	DOC.downgradeMarkups=downgradeMarkups;
+	DOC.hasAncestor=hasAncestor;
+	DOC.downgradeMarkupsTo=downgradeMarkupsTo;
+	DOC.upgradeMarkupsTo=upgradeMarkupsTo;
+	DOC.getAncestors=getAncestors;
+	return DOC;
 }
 
-var Database = function() {
+var createDatabase = function() {
+	var DB={};
 	var documents={};
 	var doccount=0;
+
+	var getDocument=function(id) {return documents[id]};
+	var getDocumentCount=function() {return doccount} ;
 
 	var createDocumentFromRoot=function(opts) { //helper for creating document from string
 		root=documents[0];
@@ -181,52 +238,60 @@ var Database = function() {
 		return evolveDocument(root);
 	}
 
-	var newDocument=function(input) {
+	var cloneDocument=function(input) {
 		var doc=null;
+
 		if (typeof input=='string') { 
-			doc=createDocumentFromRoot({id:id,text:input})
+			doc=createDocumentFromRoot({id:id,text:input,db:DB})
 		} else {
 			id=doccount++;
 			parent=input||0;
-			doc=createDocument({id:id,parent:parent});
+			doc=createDocument({id:id,parent:parent,db:DB});
 		}
-
+		
 		documents[id] = doc ;
 		return doc;
 	}
 
-	var root=newDocument();
-
-	var getDocument=function(id) {return documents[id]};
-	var getDocumentCount=function() {return doccount} ;
+	var root=cloneDocument.call();
 
 	var evolveDocument=function(d,opts) {
-		var nextgen=newDocument(d);
-		nextgen.__evolve__( d.getRevisions() , d.getMarkups() );
+		var nextgen=cloneDocument(d);
+		nextgen.__selfEvolve__( d.getRevisions() , d.getMarkups() );
 		return nextgen;
 	}
 
-	var migrateTo=function(markups,revs) {
-
+	var findMRCA=function(doc1,doc2) {
+		var ancestors1=doc1.getAncestors();
+		var ancestors2=doc2.getAncestors();
 	}
-	var migrate=function(from,to) {
-		var M=null;
-		if (typeof to=='undefined') {
-			M=from.devolveMarkups(from.getMarkups());
-		}
 
+	var migrate=function(from,to) {
+		var M=from.getMarkups();
+		if (typeof to=='undefined') {
+			M=from.downgradeMarkups(M);
+		} else {
+			if (to.hasAncestor(from)) {
+				M=from.upgradeMarkupsTo(M,to);
+			} else if (from.hasAncestor(to)){
+				M=from.downgradeMarkupsTo(M,to);
+			} else {
+				var ancestor=findMRCA(from,to);
+				M=from.downgradeMarkupsTo(M,ancestor);
+				M=ancestor.upgradeMarkupsTo(to);
+			}
+		}
 		return M;
 	}
 
-	return {
-		newDocument: newDocument,
-		getDocument: getDocument,
-		getDocumentCount:getDocumentCount,
-		evolveDocument:evolveDocument,
-		evolveMarkup:evolveMarkup,
-		reverseRevision:reverseRevision,
-		migrate:migrate
-	}
+	DB.cloneDocument=cloneDocument,
+	DB.getDocument=getDocument,
+	DB.getDocumentCount=getDocumentCount,
+	DB.evolveDocument=evolveDocument,
+	DB.migrateMarkup=migrateMarkup,
+	DB.migrate=migrate;
+
+	return DB;
 }
 
-module.exports={ Database: Database }
+module.exports={ createDatabase: createDatabase }
