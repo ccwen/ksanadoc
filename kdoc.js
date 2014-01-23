@@ -177,14 +177,14 @@ var revertRevision=function(revs,parentinscription) {
 	return revert;
 }
 
-var createDocument = function(opts) {
+var _newDocument_ = function(opts) {
 	var DOC={}; // the instance
 	var _inscription_="";
 	var markups=[];
 	var revisions=[];
 
 	opts=opts||{};
-	opts.id=opts.id || 0;
+	opts.id=opts.id || 0; //root id==0
 	var parentId=0;
 	if (opts.parent) {
 		_inscription_=opts.parent.getInscription();
@@ -228,35 +228,25 @@ var createDatabase = function() {
 	var documents={};
 	var doccount=0;
 
-	var getDocument=function(id) {return documents[id]};
-	var getDocumentCount=function() {return doccount} ;
-
-	var createDocumentFromRoot=function(opts) { //helper for creating document from string
-		root=documents[0];
-		root.clearRevisions();
-		root.addRevision(0,0,opts.text);
-		return evolveDocument(root);
-	}
-
-	var cloneDocument=function(input) {
-		var doc=null;
-
+	var createDocument=function(input) {
+		var id=doccount;
 		if (typeof input=='string') { 
-			doc=createDocumentFromRoot({id:id,text:input,db:DB})
+			root.clearRevisions();
+			root.addRevision(0,0,input);			
+			var doc=evolveDocument(root);
 		} else {
-			id=doccount++;
-			parent=input||0;
-			doc=createDocument({id:id,parent:parent,db:DB});
+			var parent=input||0;
+			var doc=_newDocument_({id:id,parent:parent,db:DB});
+			doccount++;
 		}
-		
 		documents[id] = doc ;
 		return doc;
 	}
 
-	var root=cloneDocument.call();
+	var root=createDocument();
 
-	var evolveDocument=function(d,opts) {
-		var nextgen=cloneDocument(d);
+	var evolveDocument=function(d) {
+		var nextgen=createDocument(d);
 		nextgen.__selfEvolve__( d.getRevisions() , d.getMarkups() );
 		return nextgen;
 	}
@@ -284,12 +274,13 @@ var createDatabase = function() {
 		return M;
 	}
 
-	DB.cloneDocument=cloneDocument,
-	DB.getDocument=getDocument,
-	DB.getDocumentCount=getDocumentCount,
-	DB.evolveDocument=evolveDocument,
-	DB.migrateMarkup=migrateMarkup,
+	DB.getDocument=function(id) {return documents[id]};
+	DB.getDocumentCount=function() {return doccount} ;
+	DB.createDocument=createDocument;
+	DB.evolveDocument=evolveDocument;
+	DB.findMRCA=findMRCA;
 	DB.migrate=migrate;
+	DB.migrateMarkup=migrateMarkup; //for testing
 
 	return DB;
 }

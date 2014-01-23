@@ -3,7 +3,7 @@ console.log('ksana document test suite');
 
 QUnit.test('new document',function(){
 	var db=K.createDatabase();
-	var d=db.cloneDocument();
+	var d=db.createDocument();
 	equal(d.getInscription(),"");
 	equal(d.getId(),1);
 	equal(db.getDocumentCount(),2);
@@ -77,7 +77,7 @@ var origin="道可道非常道名可名非常名";
 
 QUnit.test('evolve document',function(){
 	var db=K.createDatabase();
-	var daodejin=db.cloneDocument(origin);
+	var daodejin=db.createDocument(origin);
 	equal(daodejin.getId(),1);
 
 	equal(daodejin.getInscription(),origin);
@@ -112,7 +112,7 @@ QUnit.test('evolve document',function(){
 
 QUnit.test('validate markup position',function() {
 	var db=K.createDatabase();
-	var daodejin=db.cloneDocument(origin);
+	var daodejin=db.createDocument(origin);
 	daodejin.addMarkup(0,-1,{empty:true});
 	daodejin.addMarkup(-10,-1,{empty:true});
 	daodejin.addMarkup(-10,5,{empty:true});
@@ -134,12 +134,12 @@ QUnit.test('validate markup position',function() {
 });
 QUnit.test('markups devolve to parent  ',function(){
 	var db=K.createDatabase();
-	var daodejin=db.cloneDocument(origin+"。");
+	var daodejin=db.createDocument(origin+"。");
 	daodejin.addRevision(6,0,'也');
 	daodejin.addRevision(12,0,'也');
 	var mawang=db.evolveDocument(daodejin);
 	//道可道非常道也名可名非常名也。
-	
+
 	mawang.addRevisions( mawang.getRevert() );
 	//道可道非常道名可名非常名。
 	var daodejin2=db.evolveDocument(mawang);
@@ -167,7 +167,7 @@ QUnit.test('markups devolve to parent  ',function(){
 
 QUnit.test('validate revision',function(){
 	var db=K.createDatabase();
-	var daodejin=db.cloneDocument(origin+"。");
+	var daodejin=db.createDocument(origin+"。");
 	daodejin.addRevision(0,3,"");//delete 道可道
 	equal(daodejin.getRevisionCount(),1);
 	daodejin.addRevision(1,1,"");//delete 可
@@ -177,7 +177,7 @@ QUnit.test('validate revision',function(){
 
 QUnit.test('devolve markups to ancestor',function(){
 	var db=K.createDatabase();
-	var daodejin=db.cloneDocument(origin+"。");
+	var daodejin=db.createDocument(origin+"。");
 
 	daodejin.addRevision(6,0,'也');
 	daodejin2=db.evolveDocument(daodejin);
@@ -199,7 +199,7 @@ QUnit.test('migrate markups',function(){
 //find MRCA, B devolve to MRCA, evolve to C
 //test two seperate document. all markup become 0,0
 	var db=K.createDatabase();
-	var daodejin=db.cloneDocument(origin+"。");
+	var daodejin=db.createDocument(origin+"。");
 
 	daodejin.addRevision(6,0,'也');
 	mawang1=db.evolveDocument(daodejin);
