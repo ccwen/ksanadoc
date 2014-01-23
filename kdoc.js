@@ -156,6 +156,31 @@ var getAncestors=function() {
 	}
 	return ancestor;
 }
+
+var clear=function(M,start,len) { //return number of item removed
+	var count=0;
+	if (typeof start=='undefined') {
+		count=M.length;
+	  M.splice(0, M.length);
+	  return count;
+	}
+	if (len<0) len=this.getInscription().length;
+	var end=start+len;
+	for (var i=M.length-1;i>=0;--i) {
+		if (M[i].start>=start && M[i].start+M[i].len<=end) {
+			M.splice(i,1);
+			count++;
+		}
+	}
+	return count;
+}
+var clearRevisions=function(start,len) {
+	clear.apply(this,[this.getRevisions(),start,len]);
+}
+var clearMarkups=function(start,len) {
+	clear.apply(this,[this.getMarkups(),start,len]);
+}
+
 var revertRevision=function(revs,parentinscription) {
 	var revert=[], offset=0;
 	revs.sort(function(m1,m2){return m1.start-m2.start});
@@ -205,18 +230,19 @@ var _newDocument_ = function(opts) {
 	DOC.getRevisions    = function() { return revisions;	}
 	DOC.getRevisionCount= function() { return revisions.length}
 	DOC.getInscription  = function() { return _inscription_;	}
-	DOC.clearRevisions  = function() { revisions.splice(0, revisions.length);}
-	DOC.clearMarkups    = function() { markups.splice(0, markups.length);	}
-	DOC.addMarkup=addMarkup;
-	DOC.addMarkups=addMarkups;
-	DOC.addRevision=addRevision;
-	DOC.addRevisions=addRevisions;
-	DOC.hasAncestor=hasAncestor;
-	DOC.upgradeMarkups=upgradeMarkups;
-	DOC.downgradeMarkups=downgradeMarkups;
-	DOC.upgradeMarkupsTo=upgradeMarkupsTo;
+	DOC.clearRevisions  = clearRevisions;
+	DOC.clearMarkups    = clearMarkups;
+	DOC.addMarkup       = addMarkup;
+	DOC.addMarkups      = addMarkups;
+	DOC.addRevision     = addRevision;
+	DOC.addRevisions    = addRevisions;
+	DOC.hasAncestor     = hasAncestor;
+	DOC.upgradeMarkups  = upgradeMarkups;
+	DOC.downgradeMarkups= downgradeMarkups;
+	DOC.upgradeMarkupsTo= upgradeMarkupsTo;
 	DOC.downgradeMarkupsTo=downgradeMarkupsTo;
-	DOC.getAncestors=getAncestors;
+	DOC.getAncestors    = getAncestors;
+
 	return DOC;
 }
 

@@ -109,7 +109,19 @@ QUnit.test('evolve document',function(){
 	//ng=db.coevolve(mawang,punc);
 	//equal(ng.getInscription(),"道可道，非恆道也；名可名，非恆名也。");
 });
+QUnit.test('clear markup by range',function() {
+	var db=K.createDatabase();
+	var daodejin=db.createDocument(origin);
 
+	daodejin.addMarkup(1,2,{empty:true});
+	daodejin.addMarkup(5,1,{empty:true});
+
+	daodejin.clearMarkups(0,3);
+	equal(daodejin.getMarkups().length,1);
+	daodejin.clearMarkups(5,1);
+	equal(daodejin.getMarkups().length,0)
+
+});
 QUnit.test('validate markup position',function() {
 	var db=K.createDatabase();
 	var daodejin=db.createDocument(origin);
@@ -119,7 +131,7 @@ QUnit.test('validate markup position',function() {
 	daodejin.addMarkup(13,2,{empty:true});
 	daodejin.addMarkup(10,10,{empty:true});
 
-	markups=daodejin.getMarkups();
+	var markups=daodejin.getMarkups();
 	equal(markups[0].start,0,'markup 1 start');
 	equal(markups[0].len,origin.length,'markup 1 length');
 	equal(markups[1].start,0,'markup 2 start');
