@@ -110,53 +110,53 @@ var upgradeMarkups=function(markups,revs) {
 }
 
 var upgradeMarkupsTo=function(M,targetPage) {
-	var d=targetPage, lineage=[], db=this.getDB();
+	var pg=targetPage, lineage=[], doc=this.getDoc();
 	while (true) {
-			var pid=d.getParentId();
+			var pid=pg.getParentId();
 			if (!pid) break; // root	
-			if (pid==d.getId())break;
-			lineage.unshift(d);
-			d=db.getPage(pid);
+			if (pid==pg.getId())break;
+			lineage.unshift(pg);
+			pg=doc.getPage(pid);
 	}
-	lineage.map(function(D){
-		var parentPage=db.getPage(D.getParentId());
-		var rev=revertRevision(D.getRevert(),parentPage.getInscription());
+	lineage.map(function(pg){
+		var parentPage=doc.getPage(pg.getParentId());
+		var rev=revertRevision(pg.getRevert(),parentPage.getInscription());
 		M=parentPage.upgradeMarkups(M,rev);
 	})
 	return M;
 }
 
 var downgradeMarkupsTo=function(M,targetPage) {
-	var d=this,db=this.getDB();
+	var pg=this,doc=this.getDoc();
 	var ancestorId=targetPage.getId();
 	while (true) {
-			var pid=d.getParentId();
+			var pid=pg.getParentId();
 			if (!pid) break; // root	
-			M=d.downgradeMarkups(M);
+			M=pg.downgradeMarkups(M);
 			if (pid==ancestorId)break;
-			d=db.getPage(pid);
+			pg=doc.getPage(pid);
 	}
 	return M;
 }
 
 var hasAncestor=function(ancestor) {
 	var ancestorId=ancestor.getId();
-	var d=this,db=this.getDB();
+	var pg=this,doc=this.getDoc();
 	
 	while (true) {
-		if (!d.getParentId()) return false; // root	
-		if (d.getParentId()==ancestorId) return true;
-		d=db.getPage(d.getParentId());
+		if (!pg.getParentId()) return false; // root	
+		if (pg.getParentId()==ancestorId) return true;
+		pg=doc.getPage(pg.getParentId());
 	}
 	return false;
 }
 var getAncestors=function() {
-	var d=this,ancestor=[], db=this.getDB();
+	var pg=this,ancestor=[], doc=this.getDoc();
 	while (true) {
-			var pid=d.getParentId();
+			var pid=pg.getParentId();
 			if (!pid) break; // root	
-			d=db.getPage(pid);
-			ancestor.unshift(d);
+			pg=doc.getPage(pid);
+			ancestor.unshift(pg);
 	}
 	return ancestor;
 }
@@ -185,6 +185,14 @@ var clearMarkups=function(start,len) {
 	clear.apply(this,[this.__getMarkups__(),start,len]);
 }
 
+var isLeafPage=function() {
+	var id=this.getId(), doc=this.getDoc();
+	var pgcount=doc.getPageCount();
+	for (var i=0;i<pgcount;i++) {
+		if (doc.getPage(i).getParentId()==id) return false;
+	}
+	return true;
+}
 var revertRevision=function(revs,parentinscription) {
 	var revert=[], offset=0;
 	revs.sort(function(m1,m2){return m1.start-m2.start});
@@ -214,10 +222,10 @@ var newPage = function(opts) {
 		inscription=opts.parent.getInscription();
 		parentId=opts.parent.getId();
 	}
-	var db=opts.db;
+	var doc=opts.doc;
 	var meta= {id:opts.id, parentId:parentId, revert:null };
 
-	//this is the only function changing inscription,use by DB only
+	//this is the only function changing inscription,use by Doc only
 	PG.__selfEvolve__  =function(revs,M) { 
 		var newinscription=upgradeText(inscription, revs);
 		var migratedmarkups=[];
@@ -230,7 +238,7 @@ var newPage = function(opts) {
 	PG.__getRevisions__= function() { return revisions;	}
 
 	PG.getId           = function() { return meta.id;	}
-	PG.getDB           = function() { return db;	}
+	PG.getDoc           = function(){ return doc;	}
 	PG.getParentId     = function() { return meta.parentId;	}
 	PG.getMarkup       = function(i){ return cloneMarkup(markups[i])} //protect from modification
 	PG.getMarkupCount  = function() { return markups.length}
@@ -250,12 +258,13 @@ var newPage = function(opts) {
 	PG.upgradeMarkupsTo= upgradeMarkupsTo;
 	PG.downgradeMarkupsTo=downgradeMarkupsTo;
 	PG.getAncestors    = getAncestors;
+	PG.isLeafPage      = isLeafPage;
 
 	return PG;
 }
 
 var createDocument = function() {
-	var DB={};
+	var DOC={};
 	var pages={};
 	var pagecount=0;
 
@@ -267,7 +276,7 @@ var createDocument = function() {
 			var page=evolvePage(rootPage);
 		} else {
 			var parent=input||0;
-			var page=newPage({id:id,parent:parent,db:DB});
+			var page=newPage({id:id,parent:parent,doc:DOC});
 			pagecount++;
 		}
 		pages[id] = page ;
@@ -313,16 +322,29 @@ var createDocument = function() {
 		return out;
 	}
 
-	DB.getPage=function(id) {return pages[id]};
-	DB.getPageCount=function() {return pagecount} ;
-	DB.createPage=createPage;
-	DB.evolvePage=evolvePage;
-	DB.findMRCA=findMRCA;
-	DB.migrate=migrate; 
-	DB.downgrade=migrate; //downgrade to parent
-	DB.migrateMarkup=migrateMarkup; //for testing
+	var getLeafPages=function() {
+		var arr=[];
+		for (var i=0;i<this.getPageCount();i++) {arr[i]=true;}
+		for (var i=0;i<this.getPageCount();i++) {
+			var pid=pages[i].getParentId();
+			arr[pid]=false;
+		}
+		var leafpages=[];
+		arr.map(function(p,i){ if (p) leafpages.push(i) });
+		return leafpages;
+	}
 
-	return DB;
+	DOC.getPage=function(id) {return pages[id]};
+	DOC.getPageCount=function() {return pagecount} ;
+	DOC.createPage=createPage;
+	DOC.evolvePage=evolvePage;
+	DOC.findMRCA=findMRCA;
+	DOC.migrate=migrate; 
+	DOC.downgrade=migrate; //downgrade to parent
+	DOC.migrateMarkup=migrateMarkup; //for testing
+	DOC.getLeafPages=getLeafPages;
+
+	return DOC;
 }
 
 module.exports={ createDocument: createDocument }
