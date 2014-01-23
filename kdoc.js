@@ -18,7 +18,6 @@ var createMarkup=function(textlen,start,len,payload) {
 var cloneMarkup=function(m) {
 	return createMarkup(-1,m.start,m.len,JSON.parse(JSON.stringify(m.payload)));
 }
-
 var migrateMarkup=function(markup, rev) {
 	var end=markup.start+markup.len;
 	var newlen=(rev.payload.text.length-rev.len);
@@ -57,7 +56,6 @@ var upgradeText=function(sourcetext ,revisions) {
 	});
 	return text2;
 }
-
 var addMarkup=function(start,len,payload) {
 	this.getMarkups().push(createMarkup(this.getInscription().length,start, len, payload ));
 }
@@ -69,7 +67,6 @@ var addRevision=function(start,len,str) {
 	if (valid) this.getRevisions().push(newrevision);
 	return valid;
 }
-
 var addMarkups=function(newmarkups,opts) {
 	if (opts &&ops.clear) this.clearMarkups();
 	for (var i in newmarkups) {
@@ -78,7 +75,6 @@ var addMarkups=function(newmarkups,opts) {
 		this.getMarkups().push(newmarkup);
 	};
 }
-
 var addRevisions=function(newrevisions,opts) {
 	if (opts &&ops.clear) this.clearRevisions();
 	for (var i in newrevisions) {
@@ -114,7 +110,7 @@ var upgradeMarkupsTo=function(M,targetDoc) {
 	while (true) {
 			var pid=d.getParentId();
 			if (!pid) break; // root	
-			if (pid==getId())break;
+			if (pid==d.getId())break;
 			lineage.unshift(d);
 			d=db.getDocument(pid);
 	}
@@ -150,15 +146,15 @@ var hasAncestor=function(ancestor) {
 	}
 	return false;
 }
-
 var getAncestors=function() {
 	var d=this,ancestor=[], db=this.getDB();
 	while (true) {
 			var pid=d.getParentId();
 			if (!pid) break; // root	
 			d=db.getDocument(pid);
-			ancestor.unshift(d);
+			ancestor.unshift(pid);
 	}
+	return ancestor;
 }
 var revertRevision=function(revs,parentinscription) {
 	var revert=[], offset=0;
@@ -176,7 +172,6 @@ var revertRevision=function(revs,parentinscription) {
 	revert.sort(function(a,b){return b.start-a.start});
 	return revert;
 }
-
 var _newDocument_ = function(opts) {
 	var DOC={}; // the instance
 	var _inscription_="";
@@ -186,11 +181,12 @@ var _newDocument_ = function(opts) {
 	opts=opts||{};
 	opts.id=opts.id || 0; //root id==0
 	var parentId=0;
-	if (opts.parent) {
+	if (typeof opts.parent==='object') {
 		_inscription_=opts.parent.getInscription();
 		parentId=opts.parent.getId();
-	} 
-	var meta= {id:opts.id, parentId:parentId, revert:null, db: opts.db };
+	}
+	var db=opts.db;
+	var meta= {id:opts.id, parentId:parentId, revert:null };
 
 	//this is the only function changing inscription,use by DB only
 	DOC.__selfEvolve__  = selfEvolve=function(revs,M) { 
@@ -202,7 +198,7 @@ var _newDocument_ = function(opts) {
 	}
 
 	DOC.getId           = function() { return meta.id;	}
-	DOC.getDB           = function() { return meta.db;	}
+	DOC.getDB           = function() { return db;	}
 	DOC.getParentId     = function() { return meta.parentId;	}
 	DOC.getMarkups      = function() { return markups	 }
 	DOC.getRevert       = function() { return meta.revert	}
@@ -215,10 +211,11 @@ var _newDocument_ = function(opts) {
 	DOC.addMarkups=addMarkups;
 	DOC.addRevision=addRevision;
 	DOC.addRevisions=addRevisions;
-	DOC.downgradeMarkups=downgradeMarkups;
 	DOC.hasAncestor=hasAncestor;
-	DOC.downgradeMarkupsTo=downgradeMarkupsTo;
+	DOC.upgradeMarkups=upgradeMarkups;
+	DOC.downgradeMarkups=downgradeMarkups;
 	DOC.upgradeMarkupsTo=upgradeMarkupsTo;
+	DOC.downgradeMarkupsTo=downgradeMarkupsTo;
 	DOC.getAncestors=getAncestors;
 	return DOC;
 }
@@ -254,6 +251,13 @@ var createDatabase = function() {
 	var findMRCA=function(doc1,doc2) {
 		var ancestors1=doc1.getAncestors();
 		var ancestors2=doc2.getAncestors();
+		var common=0;
+		while (ancestors1.length && ancestors2.length &&
+			     ancestors1[0]==ancestors2[0]) {
+			common=ancestors1[0];
+			ancestors1.shift();ancestors2.shift();
+		}
+		return documents[common];
 	}
 
 	var migrate=function(from,to) {
@@ -268,7 +272,7 @@ var createDatabase = function() {
 			} else {
 				var ancestor=findMRCA(from,to);
 				M=from.downgradeMarkupsTo(M,ancestor);
-				M=ancestor.upgradeMarkupsTo(to);
+				M=ancestor.upgradeMarkupsTo(M,to);
 			}
 		}
 		return M;

@@ -207,7 +207,7 @@ QUnit.test('migrate markups',function(){
 	mawang1.addRevision(0,0,'第一章');
 	mawang2=db.evolveDocument(mawang1);	
 	//第一章道可道非常道也名可名非常名
-	mawang2.addRevision(13,3,"非常名");
+	mawang2.addMarkup(13,3,"非常名");
 	equal(mawang2.getInscription().substr(13,3),"非常名")
 
 	daodejin.clearRevisions();
@@ -220,14 +220,19 @@ QUnit.test('migrate markups',function(){
 	punc2=db.evolveDocument(punc1);
 	//
 	//道可道，非常道；名可名，非常名。
-	var M=db.migrate(mawang2,punc2);
-	equal(M[0].start,12);
-	equal(M[0].len,3);
-	equal(punc2.getInscription().substr(M[0].start,M[0].len),"非常名")	
-
 	
+	var ancestor=db.findMRCA(mawang2,punc2);
+	equal(ancestor.getId(),daodejin.getId());
+	var M=db.migrate(mawang2,daodejin);	//downgrade to ancestor
+	equal(M[0].start,9);
+	equal(daodejin.getInscription().substr(M[0].start,M[0].len),"非常名");
+
+	var M=db.migrate(mawang2,punc2); //downgrade to ancestor and upgrade to punc2
+	equal(M[0].start,12);
+	equal(punc2.getInscription().substr(M[0].start,M[0].len),"非常名");	
 });
 
+//
 QUnit.test('coevolve document',function(){
 	/*
 	*/
