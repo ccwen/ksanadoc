@@ -1,0 +1,7 @@
+module.exports={
+	"text":"\u9053\u53ef\u9053\u975e\u5e38\u9053\u540d\u53ef\u540d\u975e\u5e38\u540d",
+	"markups" : [
+		{"start":2,"len":2,"payload":{"type":"verb"}},
+		{"start":3,"len":2,"payload":{"type":"noun"}}
+	]
+}

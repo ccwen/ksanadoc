@@ -16,6 +16,7 @@ var createMarkup=function(textlen,start,len,payload) {
 	return {start:start,len:len,payload:payload};
 }
 var cloneMarkup=function(m) {
+	if (typeof m=='undefined') return null;
 	return createMarkup(-1,m.start,m.len,JSON.parse(JSON.stringify(m.payload)));
 }
 var migrateMarkup=function(markup, rev) {
@@ -68,9 +69,10 @@ var addRevision=function(start,len,str) {
 	return valid;
 }
 var addMarkups=function(newmarkups,opts) {
-	if (opts &&ops.clear) this.clearMarkups();
+	if (!(newmarkups instanceof Array)) return;
+	if (opts &&opts.clear) this.clearMarkups();
 	var maxlength=this.getInscription().length;
-	var markups=this.getMarkups();
+	var markups=this.__getMarkups__();
 	for (var i in newmarkups) {
 		m=newmarkups[i];
 		var newmarkup=createMarkup(maxlength, m.start, m.len, m.payload)
@@ -78,7 +80,8 @@ var addMarkups=function(newmarkups,opts) {
 	};
 }
 var addRevisions=function(newrevisions,opts) {
-	if (opts &&ops.clear) this.clearRevisions();
+	if (!(newrevisions instanceof Array)) return;
+	if (opts &&opts.clear) this.clearRevisions();
 	var revisions=this.__getRevisions__();
 	var maxlength=this.getInscription().length;
 	for (var i in newrevisions) {
@@ -209,6 +212,26 @@ var revertRevision=function(revs,parentinscription) {
 	revert.sort(function(a,b){return b.start-a.start});
 	return revert;
 }
+var markupAt=function(pos) {
+	return this.__getMarkups__().filter(function(m){
+		return (pos>=m.start && pos<m.start+m.len);
+	})
+}
+var toXML  = function(opts) {
+	var I=this.getInscription();
+	var xml="";
+	var selstart=opts.selstart||0,sellength=opts.sellength||0;
+	for (var i=0;i<I.length;i++) {
+		var classes="";
+		var M=markupAt.apply(this,[i]);
+		if (i>=selstart && i<selstart+sellength) classes+=' selected';
+		M.map(function(m){ classes+=' '+m.payload.type});
+		if (classes) classes=' class="'+classes.trim()+'"';
+		xml+='<token'+classes+' n="'+i+'">'+I[i]+'</token>'
+	};
+	xml+='<token n="'+I.length+'"></token>';//end of strign
+	return xml;
+}
 var newPage = function(opts) {
 	var PG={}; // the instance
 	var inscription="";
@@ -259,6 +282,8 @@ var newPage = function(opts) {
 	PG.downgradeMarkupsTo=downgradeMarkupsTo;
 	PG.getAncestors    = getAncestors;
 	PG.isLeafPage      = isLeafPage;
+	PG.toXML           = toXML;
+	PG.markupAt        = markupAt;
 
 	return PG;
 }
@@ -268,16 +293,24 @@ var createDocument = function() {
 	var pages={};
 	var pagecount=0;
 
+	var createFromJSON=function(json) {
+			rootPage.clearRevisions();
+			rootPage.addRevision(0,0,json.text);
+			var page=evolvePage(rootPage);
+			page.addMarkups(json.markups,true);
+			page.addRevisions(json.revisions,true);
+			return page;
+	}
 	var createPage=function(input) {
 		var id=pagecount;
-		if (typeof input=='string') { 
-			rootPage.clearRevisions();
-			rootPage.addRevision(0,0,input);			
-			var page=evolvePage(rootPage);
-		} else {
+		if (typeof input=='undefined' || typeof input.getId=='function') {
 			var parent=input||0;
 			var page=newPage({id:id,parent:parent,doc:DOC});
 			pagecount++;
+		} else if (typeof input=='string') { 
+			var page=createFromJSON({text:input});
+		} else {
+			var page=createFromJSON(input);
 		}
 		pages[id] = page ;
 		return page;

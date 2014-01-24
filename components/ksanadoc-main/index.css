@@ -1,0 +1,8 @@
+body {-webkit-user-select:none;}
+.main {}
+.wrapper{ 
+	padding: 10px; 
+	border: 1px dashed #aaa;
+	outline: 0;
+	-webkit-user-modify:  read-write-plaintext-only
+}

@@ -1,0 +1,33 @@
+{
+  "name": "ksanadoc",
+  "repo": "https://github.com/yapcheahshen/ksanadoc.git",
+  "description": "hello world",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "ksanaforge/boot": "*",
+    "brighthas/bootstrap": "*",
+    "component/jquery": "*",
+    "ksanadoc/main": "*",
+    "ksanadoc/surface": "*"
+  },
+  "development": {},
+  "paths": [
+    "components",
+    "../components",
+    "../node_modules/"
+  ],
+  "local": [
+    "facebook/react"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js",
+    "kdoc.js",
+    "samplepage.json"
+  ],
+  "styles": [
+    "index.css"
+  ]
+}
