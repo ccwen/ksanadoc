@@ -226,8 +226,10 @@ var toXML  = function(opts) {
 		var M=markupAt.apply(this,[i]);
 		if (i>=selstart && i<selstart+sellength) classes+=' selected';
 		M.map(function(m){ classes+=' '+m.payload.type});
+		var ch=I[i];
+		if (ch=="\n") {ch="\u21a9";classes+=' br'}
 		if (classes) classes=' class="'+classes.trim()+'"';
-		xml+='<token'+classes+' n="'+i+'">'+I[i]+'</token>'
+		xml+='<token'+classes+' n="'+i+'">'+ch+'</token>'
 	};
 	xml+='<token n="'+I.length+'"></token>';//end of strign
 	return xml;

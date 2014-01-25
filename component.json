@@ -25,7 +25,7 @@
   "scripts": [
     "index.js",
     "kdoc.js",
-    "samplepage.json"
+    "samplepage.js"
   ],
   "styles": [
     "index.css"

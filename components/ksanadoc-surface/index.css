@@ -12,7 +12,24 @@
 	  -webkit-animation: fadein 0.5s ease-in alternate infinite;
 }
 .selected {background: #52B7FD;}
-.verb {text-decoration:underline;}
+@-webkit-keyframes rainbow {
+  0% {border-color: hsl(0, 100%, 50%);}
+  100% {border-color: hsl(255, 100%, 50%);}
+}
+ 
+.br { white-space: pre;}
+.br::after { content:"\A"}
+.verb { 
+  border: 2px solid hsl(0, 100%, 50%);
+  -webkit-animation: rainbow 1s infinite alternate;
+}
+.delete { background-image:
+       url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><g><line fill="none" stroke-opacity="0.5" stroke-width="3" stroke="#f00000" id="svg_5" y2="90%" x2="91%" y1="7%" x1="10%"/><line fill="none" stroke-opacity="0.5" stroke-width="3" stroke="#f00000" id="svg_6" y2="86%" x2="12%" y1="7%" x1="90%"/></g></svg>');
+ 
+} 
+.insert {background-image:
+       url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><ellipse ry="17.5%" rx="19%" stroke-opacity="0.7" stroke-width="3" stroke="#30F030" fill="none" id="svg_7" cy="70.5%" cx="70%"/></svg>');
+}
 .noun { background-image:
        url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><g stroke-opacity="0.2" fill-opacity="0.75"><ellipse ry="47%" rx="47%" id="svg_1" cy="50%" cx="50%" stroke-width="1" stroke="#F00000" fill="url(#svg_3)"/></g><radialGradient fy="0.60547" fx="0.48047" r="0.5" cy="0.60547" cx="0.48047" id="svg_3"><stop stop-color="#ff7000" offset="0"/><stop stop-color="#ffff00" offset="1"/></radialGradient></svg>');
 }

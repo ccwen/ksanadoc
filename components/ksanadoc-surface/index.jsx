@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 //var othercomponent=Require("other"); 
-
+ 
 var surface = React.createClass({
   getInitialState: function() {
 		return {selstart:0,sellength:0 } 

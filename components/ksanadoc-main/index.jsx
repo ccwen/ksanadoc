@@ -2,8 +2,8 @@
 
 var surface=Require("surface"); 
 var kdoc=require('../ksanadoc/kdoc.js');
-var samplepage=require('../ksanadoc/samplepage.json');
-  
+var samplepage=require('../ksanadoc/samplepage.js');
+   
 var main = React.createClass({
   getInitialState: function() {
     var doc=kdoc.createDocument();
