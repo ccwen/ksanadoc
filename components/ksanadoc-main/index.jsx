@@ -1,6 +1,8 @@
 /** @jsx React.DOM */
 
 var surface=Require("surface"); 
+var controlpanel=Require("controlpanel"); 
+var pagelist=Require("pagelist"); 
 var kdoc=require('../ksanadoc/kdoc.js');
 var samplepage=require('../ksanadoc/samplepage.js');
    
@@ -9,21 +11,23 @@ var main = React.createClass({
     var doc=kdoc.createDocument();
     return {doc:doc};
   },
-  ontextinput:function(evt) {
-    var k=evt.keyCode;
-    if (k==16 || (k>=35 &&k<=40) ) return true;
-    evt.preventDefault();
-    return false;
-  },
+
   createPage:function() {
     this.state.page=this.state.doc.createPage(samplepage);
   },
   render: function() {
     return (
       <div className="main">
-      xxxx
+      <controlpanel></controlpanel>
+      <div className="row">
+      
+       <div className="col-md-9">
        <surface page={this.state.page}></surface>
-       yyyy
+       </div>
+     <div className="col-md-3">
+       <pagelist></pagelist>
+       </div>  
+      </div>
       </div>
     );  
   },

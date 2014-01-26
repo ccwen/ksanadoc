@@ -1,5 +1,7 @@
 body {-webkit-user-select:none;}
-.main {}
+.main {overflow-x:hidden;
+			margin:0px !important;
+	}
 .wrapper{ 
 	padding: 10px; 
 	border: 1px dashed #aaa;

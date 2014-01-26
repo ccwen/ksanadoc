@@ -9,7 +9,12 @@
     "brighthas/bootstrap": "*",
     "component/jquery": "*",
     "ksanadoc/main": "*",
-    "ksanadoc/surface": "*"
+    "ksanadoc/surface": "*",
+    "ksanadoc/tagbuttons": "*",
+    "ksanadoc/textbuttons": "*",
+    "ksanadoc/pagelist": "*",
+    "ksanadoc/pagebuttons": "*",
+    "ksanadoc/controlpanel": "*"
   },
   "development": {},
   "paths": [

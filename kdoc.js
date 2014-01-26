@@ -217,23 +217,7 @@ var markupAt=function(pos) {
 		return (pos>=m.start && pos<m.start+m.len);
 	})
 }
-var toXML  = function(opts) {
-	var I=this.getInscription();
-	var xml="";
-	var selstart=opts.selstart||0,sellength=opts.sellength||0;
-	for (var i=0;i<I.length;i++) {
-		var classes="";
-		var M=markupAt.apply(this,[i]);
-		if (i>=selstart && i<selstart+sellength) classes+=' selected';
-		M.map(function(m){ classes+=' '+m.payload.type});
-		var ch=I[i];
-		if (ch=="\n") {ch="\u21a9";classes+=' br'}
-		if (classes) classes=' class="'+classes.trim()+'"';
-		xml+='<token'+classes+' n="'+i+'">'+ch+'</token>'
-	};
-	xml+='<token n="'+I.length+'"></token>';//end of strign
-	return xml;
-}
+
 var newPage = function(opts) {
 	var PG={}; // the instance
 	var inscription="";
@@ -284,7 +268,6 @@ var newPage = function(opts) {
 	PG.downgradeMarkupsTo=downgradeMarkupsTo;
 	PG.getAncestors    = getAncestors;
 	PG.isLeafPage      = isLeafPage;
-	PG.toXML           = toXML;
 	PG.markupAt        = markupAt;
 
 	return PG;
