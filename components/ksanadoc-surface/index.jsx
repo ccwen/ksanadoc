@@ -1,8 +1,12 @@
 /** @jsx React.DOM */
-
+var token = React.createClass({
+  render:function() {
+    return <span className={this.props.cls} data-n={this.props.n}>{this.props.ch}</span>
+  }
+})
 var surface = React.createClass({
   getInitialState: function() {
-                return {selstart:0,sellength:0 } 
+    return {selstart:0,sellength:0 } 
   }, 
   moveCaret:function(node) {
     if (!node) return;
@@ -18,33 +22,33 @@ var surface = React.createClass({
   },
 
   getSelection:function() {
-          var sel = getSelection();
-          var range = sel.getRangeAt(0);
-          var s=range.startContainer.parentElement;
-          var e=range.endContainer.parentElement;
-          if (s.nodeName!='TOKEN' || e.nodeName!='TOKEN') return;
-          var start=parseInt(s.getAttribute('data-n'),10);
-          var end=parseInt(e.getAttribute('data-n'),10);
-          if (start==end && sel.anchorOffset==1) {
-                  this.setState({selstart:start+1,sellength:0});
-                  return;
-          }
-          var length=end-start+1  ;
-          if (length<0) {
-                  temp=end;        end=start; start=end;
-          }
-          this.setState({selstart:start,sellength:length});
-          sel.empty();
-          //this.refs.surface.getDOMNode().focus();
+    var sel = getSelection();
+    var range = sel.getRangeAt(0);
+    var s=range.startContainer.parentElement;
+    var e=range.endContainer.parentElement;
+    if (s.nodeName!='SPAN' || e.nodeName!='SPAN') return;
+    var start=parseInt(s.getAttribute('data-n'),10);
+    var end=parseInt(e.getAttribute('data-n'),10);
+    if (start==end && sel.anchorOffset==1) {
+            this.setState({selstart:start+1,sellength:0});
+            return;
+    }
+    var length=end-start+1  ;
+    if (length<0) {
+            temp=end;        end=start; start=end;
+    }
+    this.setState({selstart:start,sellength:length});
+    sel.empty();
+    this.refs.surface.getDOMNode().focus();
   },
   mouseup:function(e) {
-          this.getSelection();
-          //this.moveCaret(e.target);
+    this.getSelection();
+    //this.moveCaret(e.target);
   },
   keydown:function(evt) {
-          var kc=evt.keyCode;
-          if (kc==37) this.moveCaret(this.caretnode.previousSibling);
-          else if (kc==39) this.moveCaret(this.caretnode.nextSibling);
+    var kc=evt.keyCode;
+    if (kc==37) this.moveCaret(this.caretnode.previousSibling);
+    else if (kc==39) this.moveCaret(this.caretnode.nextSibling);
   },
   toXML : function(page,opts) {
     var I=page.getInscription();
@@ -61,20 +65,18 @@ var surface = React.createClass({
       var ch=I[i];
       if (ch=="\n") {ch="\u21a9";extraclass+=' br'}
       classes=extraclass+" "+markupclasses.join("_");
-      xml.push('<token class="'+classes+'" data-n="'+i+'">'+ch+'</token>');
+      xml.push(<token key={i} cls={classes} n={i} ch={ch}></token>);
     };
-    xml.push('<token data-n="'+I.length+'"></token>');//end of strign
-    return xml.join("");
+    xml.push(<token key={I.length} n={I.length}/>);
+    return xml;
   },  
   render: function() {
     var opts={selstart:this.state.selstart, sellength:this.state.sellength};
     var xml=this.toXML(this.props.page,opts);
     return (
       <div className="surface">
-            
             <div ref="surface" tabIndex="0" onKeyDown={this.keydown} onMouseUp={this.mouseup} 
-              dangerouslySetInnerHTML={{__html:xml}}></div>
-
+              >{xml}</div>
             <div ref="caretdiv" className="surface-caret-container">
                     <div ref="caret" className="surface-caret"></div>
             </div>
@@ -82,17 +84,17 @@ var surface = React.createClass({
     );
   },
   initSurface:function() {
-                //this.refs.surface.getDOMNode().focus();
-          this.caretnode=document.querySelector(
-                  '.surface token[data-n="'+(this.state.selstart+this.state.sellength)+'"]');
-          this.moveCaret(this.caretnode);
+    //this.refs.surface.getDOMNode().focus();
+    this.caretnode=document.querySelector(
+      '.surface span[data-n="'+(this.state.selstart+this.state.sellength)+'"]');
+    this.moveCaret(this.caretnode);
   },
   componentDidMount:function() {
-          this.initSurface();
+    this.initSurface();
   },
   componentDidUpdate:function() {
-                this.initSurface();
+    this.initSurface();
   }
 });
-//<input onKeyDown={this.keydown} ref="hiddeninput"></input>
+
 module.exports=surface;
