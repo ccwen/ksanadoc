@@ -5,9 +5,6 @@ var token = React.createClass({
   }
 })
 var surface = React.createClass({
-  getInitialState: function() {
-    return {selstart:0,sellength:0 } 
-  }, 
   moveCaret:function(node) {
     if (!node) return;
     this.caretnode=node;
@@ -30,14 +27,16 @@ var surface = React.createClass({
     var start=parseInt(s.getAttribute('data-n'),10);
     var end=parseInt(e.getAttribute('data-n'),10);
     if (start==end && sel.anchorOffset==1) {
-            this.setState({selstart:start+1,sellength:0});
-            return;
+      //      this.setState({selstart:start+1,sellength:0});
+      this.props.onSelection(start+1,0);
+      return;
     }
     var length=end-start+1  ;
     if (length<0) {
-            temp=end;        end=start; start=end;
+            temp=end; end=start; start=end;
     }
-    this.setState({selstart:start,sellength:length});
+    //this.setState({selstart:start,sellength:length});
+    this.props.onSelection(start,length);
     sel.empty();
     this.refs.surface.getDOMNode().focus();
   },
@@ -62,6 +61,7 @@ var surface = React.createClass({
       //naive solution, need to create many combination class
       //create dynamic stylesheet,concat multiple background image with ,
       M.map(function(m){ markupclasses.push(m.payload.type)});
+      markupclasses.sort();
       var ch=I[i];
       if (ch=="\n") {ch="\u21a9";extraclass+=' br'}
       classes=extraclass+" "+markupclasses.join("_");
@@ -71,7 +71,7 @@ var surface = React.createClass({
     return xml;
   },  
   render: function() {
-    var opts={selstart:this.state.selstart, sellength:this.state.sellength};
+    var opts={selstart:this.props.selstart, sellength:this.props.sellength};
     var xml=this.toXML(this.props.page,opts);
     return (
       <div className="surface">
@@ -86,7 +86,7 @@ var surface = React.createClass({
   initSurface:function() {
     //this.refs.surface.getDOMNode().focus();
     this.caretnode=document.querySelector(
-      '.surface span[data-n="'+(this.state.selstart+this.state.sellength)+'"]');
+      '.surface span[data-n="'+(this.props.selstart+this.props.sellength)+'"]');
     this.moveCaret(this.caretnode);
   },
   componentDidMount:function() {

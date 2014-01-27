@@ -9,20 +9,28 @@ var samplepage=require('../ksanadoc/samplepage.js');
 var main = React.createClass({
   getInitialState: function() {
     var doc=kdoc.createDocument();
-    return {doc:doc};
+    return {doc:doc, selstart:0, sellength:0};
   },
-
+  onSelection:function(start,len) {
+    this.setState({selstart:start,sellength:len})
+  },
   createPage:function() {
     this.state.page=this.state.doc.createPage(samplepage);
-  },
+  }, 
   render: function() {
     return (
       <div className="main">
-      <controlpanel></controlpanel>
+      <controlpanel selstart={this.state.selstart} 
+                    sellength={this.state.sellength}
+                    page={this.state.page}></controlpanel>
       <div className="row">
-      
+
        <div className="col-md-9">
-       <surface page={this.state.page}></surface>
+       <surface page={this.state.page}
+                selstart={this.state.selstart} 
+                sellength={this.state.sellength}
+                onSelection={this.onSelection}>
+       </surface>
        </div>
      <div className="col-md-3">
        <pagelist></pagelist>

@@ -20,7 +20,7 @@
 .br::after { content:"\A"}
 .verb { background-image: url('../../svg/underline.svg');}
 .noun { background-image: url('../../svg/yellowcircle.svg');}
-.verb_noun ,.noun_verb { background-image: url('../../svg/underline.svg'),url('../../svg/yellowcircle.svg')}
+.noun_verb { background-image: url('../../svg/underline.svg'),url('../../svg/yellowcircle.svg')}
 
 .delete { background-image:
        url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><g><line fill="none" stroke-opacity="0.5" stroke-width="3" stroke="#f00000" id="svg_5" y2="90%" x2="45%" y1="45%" x1="90%"/><line fill="none" stroke-opacity="0.5" stroke-width="3" stroke="#f00000" id="svg_6" y2="90%" x2="90%" y1="45%" x1="45%"/></g></svg>');
