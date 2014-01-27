@@ -14,6 +14,15 @@ var main = React.createClass({
   onSelection:function(start,len) {
     this.setState({selstart:start,sellength:len})
   },
+  onPage:function() {
+    var args = [];
+    Array.prototype.push.apply( args, arguments );
+
+    var api=args.shift();
+    this.state.page[api].apply(this.state.page,args);
+    var newstart=this.state.selstart+this.state.sellength;
+    this.setState({selstart:newstart,sellength:0});
+  },
   createPage:function() {
     this.state.page=this.state.doc.createPage(samplepage);
   }, 
@@ -22,6 +31,7 @@ var main = React.createClass({
       <div className="main">
       <controlpanel selstart={this.state.selstart} 
                     sellength={this.state.sellength}
+                    onPage={this.onPage} 
                     page={this.state.page}></controlpanel>
       <div className="row">
 
