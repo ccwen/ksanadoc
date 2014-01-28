@@ -3,7 +3,11 @@ module.exports={
 	"markups" : [
 		{"start":2,"len":2,"payload":{"type":"verb"}},
 		{"start":3,"len":3,"payload":{"type":"noun"}},
-		{"start":8,"len":2,"payload":{"type":"delete"}},
-		{"start":11,"len":2,"payload":{"type":"insert"}}
+	],
+	"revisions" : [
+		{"start":9,"len":0,"payload":{"text":"也！"}},
+		{"start":10,"len":2,"payload":{"text":"非恆"}},
+		{"start":21,"len":3,"payload":{"text":""}}
+
 	]
 }

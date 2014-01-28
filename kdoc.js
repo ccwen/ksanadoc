@@ -217,6 +217,11 @@ var markupAt=function(pos) {
 		return (pos>=m.start && pos<m.start+m.len);
 	})
 }
+var revisionAt=function(pos) {
+	return this.__getRevisions__().filter(function(m){
+		return (pos>=m.start && pos<=m.start+m.len);
+	})
+}
 
 var newPage = function(opts) {
 	var PG={}; // the instance
@@ -269,6 +274,7 @@ var newPage = function(opts) {
 	PG.getAncestors    = getAncestors;
 	PG.isLeafPage      = isLeafPage;
 	PG.markupAt        = markupAt;
+	PG.revisionAt      = revisionAt;
 
 	return PG;
 }

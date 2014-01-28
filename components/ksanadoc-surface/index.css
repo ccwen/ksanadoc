@@ -22,9 +22,15 @@
 .noun { background-image: url('../../svg/yellowcircle.svg');}
 .noun_verb { background-image: url('../../svg/underline.svg'),url('../../svg/yellowcircle.svg')}
 
-.delete { background-image:
-       url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><g><line fill="none" stroke-opacity="0.5" stroke-width="3" stroke="#f00000" id="svg_5" y2="90%" x2="45%" y1="45%" x1="90%"/><line fill="none" stroke-opacity="0.5" stroke-width="3" stroke="#f00000" id="svg_6" y2="90%" x2="90%" y1="45%" x1="45%"/></g></svg>');
+.delete { 
+	background-image: url('../../svg/redstrikeout.svg');
 } 
-.insert {background-image:
-       url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><ellipse ry="17.5%" rx="19%" stroke-opacity="0.7" stroke-width="3" stroke="#30F030" fill="none" id="svg_7" cy="70.5%" cx="70%"/></svg>');
+.inserttext {
+	background-image: url('../../svg/overline.svg');
+}
+.replacetext {
+	background-image: url('../../svg/overline.svg');
+}
+.replace{
+	background-image: url('../../svg/redstrikeout.svg');
 }
