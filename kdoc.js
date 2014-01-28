@@ -250,9 +250,9 @@ var newPage = function(opts) {
 	//protected functions
 	PG.__getMarkups__  = function() { return markups; }	
 	PG.__getRevisions__= function() { return revisions;	}
-
+	PG.hasRevision     = function() { return revisions.length>0}
 	PG.getId           = function() { return meta.id;	}
-	PG.getDoc           = function(){ return doc;	}
+	PG.getDoc          = function() { return doc;	}
 	PG.getParentId     = function() { return meta.parentId;	}
 	PG.getMarkup       = function(i){ return cloneMarkup(markups[i])} //protect from modification
 	PG.getMarkupCount  = function() { return markups.length}
@@ -275,6 +275,7 @@ var newPage = function(opts) {
 	PG.isLeafPage      = isLeafPage;
 	PG.markupAt        = markupAt;
 	PG.revisionAt      = revisionAt;
+
 
 	return PG;
 }
@@ -309,8 +310,12 @@ var createDocument = function() {
 
 	var rootPage=createPage();   
 
-	var evolvePage=function(d) {//apply revisions and upgrate markup
-		var nextgen=createPage(d);
+	var evolvePage=function(d,opts) {//apply revisions and upgrate markup
+		if (opts && opts.preview) {
+			var nextgen=newPage({parent:d,doc:DOC});
+		} else {
+			var nextgen=createPage(d);	
+		}
 		nextgen.__selfEvolve__( d.__getRevisions__() , d.__getMarkups__() );
 		return nextgen;
 	}

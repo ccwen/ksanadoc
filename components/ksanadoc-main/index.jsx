@@ -9,7 +9,7 @@ var samplepage=require('../ksanadoc/samplepage.js');
 var main = React.createClass({
   getInitialState: function() {
     var doc=kdoc.createDocument();
-    return {doc:doc, selstart:0, sellength:0};
+    return {doc:doc, selstart:0, selectedTab: "versionbuttons",sellength:0, preview:false};
   },
   onSelection:function(start,len) {
     this.setState({selstart:start,sellength:len})
@@ -22,16 +22,36 @@ var main = React.createClass({
     this.state.page[api].apply(this.state.page,args);
     var newstart=this.state.selstart+this.state.sellength;
     this.setState({selstart:newstart,sellength:0});
-  },
-  createPage:function() {
-    this.state.page=this.state.doc.createPage(samplepage);
   }, 
+  onVersion:function(action){
+    if (action=="preview") {
+      this.previewpage=this.state.doc.evolvePage(this.editingpage, {preview:true});
+      this.setState({preview:true,page:this.previewpage});
+    } else if (action=="apply") {
+      this.editingpage=this.state.doc.evolvePage(this.editingpage);
+      this.setState({preview:false,page:this.editingpage}); 
+    } else if (action=="cancel") {
+      this.setState({preview:false,page:this.editingpage});
+    }    
+  },
+
+  createPage:function() {
+    this.editingpage=this.state.doc.createPage(samplepage);
+    this.state.page=this.editingpage;
+  }, 
+  setSelectedTab:function(selectedTab) {
+    this.state.selectedTab=selectedTab;
+  },
   render: function() {
     return (
       <div className="main">
       <controlpanel selstart={this.state.selstart} 
                     sellength={this.state.sellength}
-                    onPage={this.onPage} 
+                    onPage={this.onPage}
+                    preview={this.state.preview} 
+                    onVersion={this.onVersion}
+                    selectedTab={this.state.selectedTab}
+                    setSelectedTab={this.setSelectedTab}
                     page={this.state.page}></controlpanel>
       <div className="row">
 

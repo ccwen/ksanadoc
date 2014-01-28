@@ -15,7 +15,6 @@
     "ksanadoc/pagelist": "*",
     "ksanadoc/pagebuttons": "*",
     "ksanadoc/controlpanel": "*",
-    "ksanadoc/revbuttons": "*",
     "ksanadoc/versionbuttons": "*"
   },
   "development": {},

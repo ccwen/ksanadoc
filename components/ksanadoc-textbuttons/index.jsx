@@ -32,21 +32,32 @@ var textbuttons = React.createClass({
   ontext:function() {
     this.props.onText(this.refs.textinput.getDOMNode().value);
   },
+  clearRevision:function() {
+    this.props.onText("_clear_");
+  }, 
   clearinput:function() {
     this.refs.textinput.getDOMNode().value="";
     this.textChanged();
-  },
+  }, 
   render: function() {    
     var disable=this.buttondisable()?"disabled ":"";
+    var disable2=!this.props.selectedText.length?"disabled ":"";
     return (
-      <div>
-      <input type="text" className="textinput readonly" value={this.props.selectedText}></input>
-      <a ref="action" onClick={this.ontext} className={disable+"btn btn-info"} >{this.getActionText()}</a>
-      <input ref="textinput" onChange={this.textChanged} className="textinput" defaultValue={this.state.replacetext}></input>
-        <button className="btn btn-danger" type="button" onClick={this.clearinput}>
-       {String.fromCharCode(0xd7)}
-       </button>
-
+      <div className="row">
+        <div className="col-xs-2">
+           <input type="text" className="textinput readonly form-control" value={this.props.selectedText}></input>
+        </div>
+        <div className="col-xs-2">
+        <a ref="action" onClick={this.ontext} className={disable+"btn btn-info form-control"} >{this.getActionText()}</a>
+        </div>
+        <div className="col-xs-2">
+          <input ref="textinput" onChange={this.textChanged} className="textinput form-control" defaultValue={this.state.replacetext}></input>
+        </div>
+        <div className="col-xs-1">
+        <button className={disable2+"btn btn-danger"} type="button" onClick={this.clearRevision}>
+             清除選取區
+             </button>
+        </div>        
       </div>
     );
   },

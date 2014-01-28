@@ -253,18 +253,15 @@ QUnit.test('migrate markups',function(){
 	equal(punc1.isLeafPage(),false);
 });
 
-QUnit.test('to XML',function(){
+QUnit.test('preview',function(){
 	var doc=K.createDocument();
 	var daodejin=doc.createPage(origin);
-
-	daodejin.addMarkup(0,1,{type:"noun"});
-	daodejin.addMarkup(2,1,{type:"verb"});
-	daodejin.addMarkup(8,1,{type:"verb"});
-
-	equal( daodejin.toXML(), '<token class="noun" n="0">道</token><token n="1">可</token><token class="verb" n="2">道</token><token n="3">非</token><token n="4">常</token><token n="5">道</token><token n="6">名</token><token n="7">可</token><token class="verb" n="8">名</token><token n="9">非</token><token n="10">常</token><token n="11">名</token>');
-//	console.log(daodejin.toXML());
-
+	equal(daodejin.getId(),1);
+	daodejin.addRevision(4,1,'恆');	
+	mawang=doc.evolvePage(daodejin,{preview:true});
+	equal(doc.getPageCount(),2);
 });
+
 QUnit.test('coevolve page',function(){
 	/*
 	*/
