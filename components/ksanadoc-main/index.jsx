@@ -9,7 +9,7 @@ var samplepage=require('../ksanadoc/samplepage.js');
 var main = React.createClass({
   getInitialState: function() {
     var doc=kdoc.createDocument();
-    return {doc:doc, selstart:0, selectedTab: "versionbuttons",sellength:0, preview:false};
+    return {doc:doc, selstart:0, selectedTab: "tagbuttons",sellength:0, preview:false};
   },
   onSelection:function(start,len) {
     this.setState({selstart:start,sellength:len})
@@ -32,7 +32,7 @@ var main = React.createClass({
       this.setState({preview:false,page:this.editingpage}); 
     } else if (action=="cancel") {
       this.setState({preview:false,page:this.editingpage});
-    }    
+    }     
   },
 
   createPage:function() {

@@ -50,17 +50,16 @@ var controlpanel = React.createClass({
     return (
       <div>
         <ul className="nav nav-pills" >
-          <li className="active">
-              <a href="#"  onClick={this.clicktab} data-target2="textbuttons" data-target="[data-id='textbuttons']" data-toggle={enabletab}>Text</a></li>
-          <li><a href="#"  onClick={this.clicktab} data-target2="tagbuttons" data-target="[data-id='tagbuttons']" data-toggle={enabletab}>Tag</a></li>
+          <li className="active"><a href="#"  onClick={this.clicktab} data-target2="tagbuttons" data-target="[data-id='tagbuttons']" data-toggle={enabletab}>Tag</a></li>
+          <li><a href="#"  onClick={this.clicktab} data-target2="textbuttons" data-target="[data-id='textbuttons']" data-toggle={enabletab}>Text</a></li>
           <li><a href="#"  onClick={this.clicktab} data-target2="versionbuttons" data-target="[data-id='versionbuttons']" data-toggle={enabletab}>Versions</a></li>
         </ul>
         <div className="tab-content">
-          <div className="tab-pane active"  data-id="textbuttons" ref="textbuttons">
-            <textbuttons onText={this.onText} selectedText={this.getSelectedText()}/>
-          </div>
-          <div className="tab-pane" data-id="tagbuttons" ref="tagbuttons">
+          <div className="tab-pane active"  data-id="tagbuttons" ref="tagbuttons">
             <tagbuttons disabled={this.props.sellength==0} onMarkup={this.onMarkup} />
+          </div>
+          <div className="tab-pane" data-id="textbuttons" ref="textbuttons">
+            <textbuttons onText={this.onText} selectedText={this.getSelectedText()}/>
           </div>
           <div className="tab-pane" data-id="versionbuttons" ref="versionbuttons">
             <versionbuttons hasRevision={this.props.page.hasRevision()} onVersion={this.onVersion} preview={this.props.preview}/>

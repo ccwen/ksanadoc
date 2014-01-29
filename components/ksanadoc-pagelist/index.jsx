@@ -8,7 +8,7 @@ var pagelist = React.createClass({
   render: function() {
     return (
       <div>
-        Hello,{this.state.bar}
+        
       </div>
     );
   }
