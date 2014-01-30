@@ -10,7 +10,7 @@ var main = React.createClass({
   getInitialState: function() {
     var doc=kdoc.createDocument();
     return {doc:doc, selstart:0, selectedTab: "tagbuttons",sellength:0, preview:false};
-  },
+  },  
   onSelection:function(start,len) {
     this.setState({selstart:start,sellength:len})
   },

@@ -31,7 +31,7 @@ var controlpanel = React.createClass({
   },
   exportMarkup:function() {
     this.setState({saved:this.props.page.getId()});
-  }, 
+  },  
   importMarkup:function() {
     if (!this.state.saved)return;
     if (this.props.page.getId()==this.state.saved) return;
@@ -44,6 +44,9 @@ var controlpanel = React.createClass({
     if (markuptype=="_export_") return this.exportMarkup();
     if (markuptype=="_import_") return this.importMarkup();
 
+    if (this.props.sellength==0) {
+      this.props.onPage("clearMarkups",this.props.selstart,0);
+    }
     this.props.onPage("addMarkup",this.props.selstart,this.props.sellength,{type:markuptype});
   },
   getSelectedText:function() {

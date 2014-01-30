@@ -222,7 +222,8 @@ var revertRevision=function(revs,parentinscription) {
 }
 var markupAt=function(pos) {
 	return this.__getMarkups__().filter(function(m){
-		return (pos>=m.start && pos<m.start+m.len);
+		var len=m.len;if (!m.len) len=1;
+		return (pos>=m.start && pos<m.start+len);
 	})
 }
 var revisionAt=function(pos) {
