@@ -9,7 +9,7 @@ var samplepage=require('../ksanadoc/samplepage.js');
 var main = React.createClass({
   getInitialState: function() {
     var doc=kdoc.createDocument();
-    return {doc:doc, selstart:0, selectedTab: "tagbuttons",sellength:0, preview:false};
+    return {doc:doc, selstart:0, selectedTab: "versionbuttons",sellength:0, preview:false};
   },
   onSelection:function(start,len) {
     this.setState({selstart:start,sellength:len})
@@ -22,7 +22,13 @@ var main = React.createClass({
     this.state.page[api].apply(this.state.page,args);
     var newstart=this.state.selstart+this.state.sellength;
     this.setState({selstart:newstart,sellength:0});
-  }, 
+  },
+  onGoPage:function(pageid) {
+    if (!pageid) return;
+    this.previewpage=null;
+    this.editingpage=this.state.doc.getPage(pageid);
+    this.setState({page:this.editingpage});
+  },
   onVersion:function(action){
     if (action=="preview") {
       this.previewpage=this.state.doc.evolvePage(this.editingpage, {preview:true});
@@ -48,6 +54,7 @@ var main = React.createClass({
       <controlpanel selstart={this.state.selstart} 
                     sellength={this.state.sellength}
                     onPage={this.onPage}
+                    onGoPage={this.onGoPage}
                     preview={this.state.preview} 
                     onVersion={this.onVersion}
                     selectedTab={this.state.selectedTab}

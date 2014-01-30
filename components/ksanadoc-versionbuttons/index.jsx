@@ -1,6 +1,32 @@
 /** @jsx React.DOM */
 
 //var othercomponent=Require("other"); 
+
+var childrenbutton = React.createClass({
+  gotopage:function(e) {
+    var pageid=parseInt(e.target.getAttribute('data-id'),10);
+    if (pageid) this.props.onGoPage(pageid);
+  },
+  render:function() {
+    var gotopage=this.gotopage;
+    var buttons=this.props.children.map(function(child){
+      return <a onClick={gotopage} className="btn btn-primary" data-id={child}>{"#"+child}</a>;
+    });
+
+    return <span><span>Children:</span>{buttons}</span>
+  }
+}); 
+var parentbutton = React.createClass({
+  gotopage:function(e) {
+    var pageid=parseInt(e.target.getAttribute('data-id'),10);
+    if (pageid) this.props.onGoPage(pageid);
+  },
+  render:function() {
+    var disable=this.props.parentId?"":"disabled ";
+    return <a onClick={this.gotopage} className={disable+"btn btn-primary"} data-id={this.props.parentId}>{"←Parent#"+this.props.parentId}</a>
+  }
+});
+
 var versionbuttons = React.createClass({
 
   preview:function() {
@@ -25,6 +51,12 @@ var versionbuttons = React.createClass({
       return (
         <div>
         <a ref="action" onClick={this.preview} className={disable+"btn btn-warning"} >預覽</a>
+
+        <span> </span>
+        <parentbutton onGoPage={this.props.onGoPage} parentId={this.props.parentId}/>
+        
+        <span className="label label-success">{this.props.pageId}</span>
+        <childrenbutton onGoPage={this.props.onGoPage} children={this.props.children}/>
         </div>
       );      
     }

@@ -187,7 +187,15 @@ var clearRevisions=function(start,len) {
 var clearMarkups=function(start,len) {
 	clear.apply(this,[this.__getMarkups__(),start,len]);
 }
-
+var getChildren=function() {
+	var id=this.getId(), doc=this.getDoc();
+	var pgcount=doc.getPageCount();
+	var children=[];
+	for (var i=0;i<pgcount;i++) {
+		if (doc.getPage(i).getParentId()==id) children.push(i);
+	}
+	return children;
+}
 var isLeafPage=function() {
 	var id=this.getId(), doc=this.getDoc();
 	var pgcount=doc.getPageCount();
@@ -275,6 +283,7 @@ var newPage = function(opts) {
 	PG.isLeafPage      = isLeafPage;
 	PG.markupAt        = markupAt;
 	PG.revisionAt      = revisionAt;
+	PG.getChildren     = getChildren;
 
 
 	return PG;

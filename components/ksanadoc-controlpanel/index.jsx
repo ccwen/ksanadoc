@@ -45,6 +45,9 @@ var controlpanel = React.createClass({
   onVersion:function(action) {
     this.props.onVersion(action);
   },
+  onGoPage:function(pageid) {
+    this.props.onGoPage(pageid);
+  },
   render: function() {
     var enabletab=this.props.preview?"":"tab";
     return (
@@ -62,7 +65,16 @@ var controlpanel = React.createClass({
             <textbuttons onText={this.onText} selectedText={this.getSelectedText()}/>
           </div>
           <div className="tab-pane" data-id="versionbuttons" ref="versionbuttons">
-            <versionbuttons hasRevision={this.props.page.hasRevision()} onVersion={this.onVersion} preview={this.props.preview}/>
+            <versionbuttons 
+              hasRevision={this.props.page.hasRevision()} 
+              onVersion={this.onVersion} 
+              preview={this.props.preview}
+              onChangePage={this.onChangePage}
+              pageId={this.props.page.getId()}
+              parentId={this.props.page.getParentId()}
+              onGoPage={this.onGoPage}
+              children={this.props.page.getChildren()}
+            />
           </div>
         </div>
       </div>
