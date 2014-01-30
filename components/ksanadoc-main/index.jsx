@@ -9,7 +9,7 @@ var samplepage=require('../ksanadoc/samplepage.js');
 var main = React.createClass({
   getInitialState: function() {
     var doc=kdoc.createDocument();
-    return {doc:doc, selstart:0, selectedTab: "versionbuttons",sellength:0, preview:false};
+    return {doc:doc, selstart:0, selectedTab: "tagbuttons",sellength:0, preview:false};
   },
   onSelection:function(start,len) {
     this.setState({selstart:start,sellength:len})
@@ -59,7 +59,9 @@ var main = React.createClass({
                     onVersion={this.onVersion}
                     selectedTab={this.state.selectedTab}
                     setSelectedTab={this.setSelectedTab}
-                    page={this.state.page}></controlpanel>
+                    page={this.state.page}
+                    doc={this.state.doc}>
+                    </controlpanel>
       <div className="row">
 
        <div className="col-md-9">

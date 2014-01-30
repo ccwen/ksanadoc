@@ -6,7 +6,9 @@ var versionbuttons=Require("versionbuttons");
 var bootstrap=Require("bootstrap");
 var $=Require('jquery');
 var controlpanel = React.createClass({
-  
+  getInitialState:function() {
+    return {saved:""}
+  },
   clicktab:function(e) {
     //e.preventDefault();
     //if (this.state.preview) return false;
@@ -27,8 +29,21 @@ var controlpanel = React.createClass({
   clearmarkup:function() {
     this.props.onPage("clearMarkups",this.props.selstart,this.props.sellength);
   },
+  exportMarkup:function() {
+    this.setState({saved:this.props.page.getId()});
+  }, 
+  importMarkup:function() {
+    if (!this.state.saved)return;
+    if (this.props.page.getId()==this.state.saved) return;
+    var M=this.props.doc.migrate(this.state.saved,this.props.page.getId());
+    this.props.onPage("addMarkups",M);
+    this.setState({saved:0});
+  },
   onMarkup:function(markuptype) {
     if (markuptype=="_clear_") return this.clearmarkup(); 
+    if (markuptype=="_export_") return this.exportMarkup();
+    if (markuptype=="_import_") return this.importMarkup();
+
     this.props.onPage("addMarkup",this.props.selstart,this.props.sellength,{type:markuptype});
   },
   getSelectedText:function() {
@@ -53,13 +68,16 @@ var controlpanel = React.createClass({
     return (
       <div>
         <ul className="nav nav-pills" >
-          <li className="active"><a href="#"  onClick={this.clicktab} data-target2="tagbuttons" data-target="[data-id='tagbuttons']" data-toggle={enabletab}>Tag</a></li>
+          <li className="active"><a href="#"  onClick={this.clicktab} data-target2="tagbuttons" data-target="[data-id='tagbuttons']" data-toggle={enabletab}>Content Markup</a></li>
           <li><a href="#"  onClick={this.clicktab} data-target2="textbuttons" data-target="[data-id='textbuttons']" data-toggle={enabletab}>Text</a></li>
           <li><a href="#"  onClick={this.clicktab} data-target2="versionbuttons" data-target="[data-id='versionbuttons']" data-toggle={enabletab}>Versions</a></li>
         </ul>
         <div className="tab-content">
           <div className="tab-pane active"  data-id="tagbuttons" ref="tagbuttons">
-            <tagbuttons disabled={this.props.sellength==0} onMarkup={this.onMarkup} />
+            <tagbuttons
+             disabled={this.props.sellength==0} 
+             onMarkup={this.onMarkup} 
+             saved={this.state.saved} />
           </div>
           <div className="tab-pane" data-id="textbuttons" ref="textbuttons">
             <textbuttons onText={this.onText} selectedText={this.getSelectedText()}/>

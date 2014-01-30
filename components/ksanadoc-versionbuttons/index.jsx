@@ -52,10 +52,11 @@ var versionbuttons = React.createClass({
         <div>
         <a ref="action" onClick={this.preview} className={disable+"btn btn-warning"} >預覽</a>
 
-        <span> </span>
+        <a className="btn btn-link disabled"> </a>
         <parentbutton onGoPage={this.props.onGoPage} parentId={this.props.parentId}/>
-        
+        <a className="btn btn-link disabled"> </a>
         <span className="label label-success">{this.props.pageId}</span>
+        <a className="btn btn-link disabled"> </a>
         <childrenbutton onGoPage={this.props.onGoPage} children={this.props.children}/>
         </div>
       );      

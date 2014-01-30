@@ -342,12 +342,16 @@ var createDocument = function() {
 	}
 
 	var migrate=function(from,to) { //migrate markups of A to B
+		if (typeof from=='number') from=this.getPage(from);
 		var M=from.__getMarkups__();
 		var out=null;
 		if (typeof to=='undefined') {
 			out=from.downgradeMarkups(M);
 		} else {
-			if (to.hasAncestor(from)) {
+			if (typeof to=='number') to=this.getPage(to);
+			if (from.getId()===to.getId()) {
+				return M;
+			} else if (to.hasAncestor(from)) {
 				out=from.upgradeMarkupsTo(M,to);
 			} else if (from.hasAncestor(to)){
 				out=from.downgradeMarkupsTo(M,to);

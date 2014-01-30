@@ -5,7 +5,8 @@ module.exports={
 		//{"start":16,"len":3,"payload":{"type":"noun"}}
 	],
 	"revisions" : [
-		{"start":11,"len":1,"payload":{"text":"恆"}}
+		{"start":11,"len":1,"payload":{"text":"恆"}},
+		{"start":13,"len":0,"payload":{"text":"也"}}
 
 	]
 }
