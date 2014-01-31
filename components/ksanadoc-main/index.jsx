@@ -10,7 +10,7 @@ var main = React.createClass({
   getInitialState: function() {
     var doc=kdoc.createDocument();
     return {doc:doc, selstart:0, selectedTab: "tagbuttons",sellength:0, preview:false};
-  },  
+  },
   onSelection:function(start,len) {
     this.setState({selstart:start,sellength:len})
   },
@@ -29,12 +29,16 @@ var main = React.createClass({
     this.editingpage=this.state.doc.getPage(pageid);
     this.setState({page:this.editingpage});
   },
-  onVersion:function(action){
+  onVersion:function(action,opts){
     if (action=="preview") {
       this.previewpage=this.state.doc.evolvePage(this.editingpage, {preview:true});
       this.setState({preview:true,page:this.previewpage});
     } else if (action=="apply") {
+      var temp=this.editingpage;
       this.editingpage=this.state.doc.evolvePage(this.editingpage);
+      if (opts &&opts.clear) {
+        temp.clearRevisions();
+      }
       this.setState({preview:false,page:this.editingpage}); 
     } else if (action=="cancel") {
       this.setState({preview:false,page:this.editingpage});

@@ -60,14 +60,39 @@ var controlpanel = React.createClass({
     if (this.props.selstart==0) return; //cannot insert at beginning
     this.props.onPage("addRevision",this.props.selstart,this.props.sellength,text);
   },
-  onVersion:function(action) {
-    this.props.onVersion(action);
+  onVersion:function(action,opts) {
+    this.props.onVersion(action,opts);
   },
   onGoPage:function(pageid) {
     this.props.onGoPage(pageid);
   },
   render: function() {
     var enabletab=this.props.preview?"":"tab";
+    return (
+       <div>
+          <div ref="tagbuttons">
+            <tagbuttons
+             disabled={this.props.sellength==0} 
+             onMarkup={this.onMarkup} 
+             saved={this.state.saved} />
+          </div>
+          <div ref="textbuttons">
+            <textbuttons onText={this.onText} selectedText={this.getSelectedText()}/>
+          </div>
+          <div ref="versionbuttons">
+            <versionbuttons 
+              hasRevision={this.props.page.hasRevision()} 
+              onVersion={this.onVersion} 
+              preview={this.props.preview}
+              onChangePage={this.onChangePage}
+              pageId={this.props.page.getId()}
+              parentId={this.props.page.getParentId()}
+              onGoPage={this.onGoPage}
+              children={this.props.page.getChildren()}
+            />
+          </div>
+        </div>
+      )
     return (
       <div>
         <ul className="nav nav-pills" >

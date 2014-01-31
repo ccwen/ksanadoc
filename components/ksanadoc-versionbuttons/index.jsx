@@ -35,6 +35,9 @@ var versionbuttons = React.createClass({
   confirm:function() {
     this.props.onVersion("apply");
   },
+  confirm_clear:function() {
+    this.props.onVersion("apply",{clear:true});
+  },
   cancelpreview:function() {
     this.props.onVersion("cancel");
   },
@@ -44,6 +47,7 @@ var versionbuttons = React.createClass({
         <div>
         <a ref="action" onClick={this.cancelpreview} className={"btn btn-warning"} >結束預覽</a>
         <a ref="action" onClick={this.confirm} className={"btn btn-success"} >存成新版</a>
+        <a ref="action" onClick={this.confirm_clear} className={"btn btn-success"} >存成新版並清除修訂標記</a>
         </div>
       );      
     } else {

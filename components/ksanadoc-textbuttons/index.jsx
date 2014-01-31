@@ -5,6 +5,10 @@ var textbuttons = React.createClass({
   getInitialState:function() {
       return {action:"delete",replacetext:""}
   },
+  setreplacetext:function(e) {
+    this.refs.textinput.getDOMNode().value=e.target.innerHTML;
+    this.textChanged();
+  },
   textChanged:function() {
     var value=this.refs.textinput.getDOMNode().value;
     if (value.length>0) {
@@ -48,7 +52,7 @@ var textbuttons = React.createClass({
            <input type="text" className="textinput readonly form-control" value={this.props.selectedText}></input>
         </div>
         <div className="col-xs-2">
-        <a ref="action" onClick={this.ontext} className={disable+"btn btn-info form-control"} >{this.getActionText()}</a>
+        <a ref="action" onClick={this.ontext} className={disable+"btn btn-success form-control"} >{this.getActionText()}</a>
         </div>
         <div className="col-xs-2">
           <input ref="textinput" onChange={this.textChanged} className="textinput form-control" defaultValue={this.state.replacetext}></input>
@@ -57,7 +61,10 @@ var textbuttons = React.createClass({
         <button className={disable2+"btn btn-danger"} type="button" onClick={this.clearRevision}>
              清除選取區
              </button>
-        </div>        
+        </div>  
+        <a className="btn btn-link" href="#" onClick={this.setreplacetext} >恆</a>
+        <a className="btn btn-link" href="#" onClick={this.setreplacetext} >也</a>
+        
       </div>
     );
   },
