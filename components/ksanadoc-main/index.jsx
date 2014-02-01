@@ -3,7 +3,7 @@
 var surface=Require("surface"); 
 var controlpanel=Require("controlpanel"); 
 var pagelist=Require("pagelist"); 
-var kdoc=require('../ksanadoc/kdoc.js');
+var kdoc=Require('yaml').kdoc;
 var samplepage=require('../ksanadoc/samplepage.js');
    
 var main = React.createClass({

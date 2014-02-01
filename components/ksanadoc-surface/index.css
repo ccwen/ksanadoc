@@ -40,3 +40,5 @@
 .replace{
 	background-image: url('../../svg/redstrikeout.svg');
 }
+
+.link { cursor: pointer; background-image: url('../../svg/underline.svg');}

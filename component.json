@@ -15,7 +15,8 @@
     "ksanadoc/pagelist": "*",
     "ksanadoc/pagebuttons": "*",
     "ksanadoc/controlpanel": "*",
-    "ksanadoc/versionbuttons": "*"
+    "ksanadoc/versionbuttons": "*",
+    "yaml":"*"
   },
   "development": {},
   "paths": [
@@ -30,7 +31,6 @@
   "main": "index.js",
   "scripts": [
     "index.js",
-    "kdoc.js",
     "samplepage.js"
   ],
   "styles": [

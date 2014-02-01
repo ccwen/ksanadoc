@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+var $=Require("jquery");
 var token = React.createClass({
   render:function() {
     if (this.props.replaceto)
@@ -31,7 +32,7 @@ var surface = React.createClass({
     if (start==end && sel.anchorOffset==1) {
       //      this.setState({selstart:start+1,sellength:0});
       this.props.onSelection(start+1,0);
-      return;
+      return {selstart:start,sellength:length};
     }
     var length=end-start+1  ;
     if (length<0) {
@@ -41,10 +42,14 @@ var surface = React.createClass({
     this.props.onSelection(start,length);
     sel.empty();
     this.refs.surface.getDOMNode().focus();
+    return {selstart:start,sellength:length};
   },
   mouseup:function(e) {
-    this.getSelection();
-    //this.moveCaret(e.target);
+    var sel=this.getSelection();
+    if (e.target.getAttribute("class")=="link") {
+      var M=this.props.page.markupAt(sel.selstart);
+      if (this.props.onLink) this.props.onLink(M[0].payload);
+    }
   },
   keydown:function(evt) {
     var kc=evt.keyCode;
@@ -52,6 +57,7 @@ var surface = React.createClass({
     else if (kc==39) this.moveCaret(this.caretnode.nextSibling);
   },
   toXML : function(page,opts) {
+    if (!page) return [];
     var I=page.getInscription();
     var xml=[];
     var selstart=opts.selstart||0,sellength=opts.sellength||0;
@@ -104,10 +110,17 @@ var surface = React.createClass({
       </div>
     );
   },
+  scrollToSelection:function() {
+    var node = this.getDOMNode();
+    var scrollto=$(this.refs.caretdiv.getDOMNode()).offset().top;
+    node.scrollTop=scrollto-100;
+      
+    //  $(this.refs.surface.getDOMNode()).scrollTop(scrollto);
+  },
   initSurface:function() {
     //this.refs.surface.getDOMNode().focus();
-    this.caretnode=document.querySelector(
-      '.surface span[data-n="'+(this.props.selstart+this.props.sellength)+'"]');
+    this.caretnode=this.refs.surface.getDOMNode().querySelector(
+      'span[data-n="'+(this.props.selstart+this.props.sellength)+'"]');
     this.moveCaret(this.caretnode);
   },
   componentDidMount:function() {
@@ -115,6 +128,7 @@ var surface = React.createClass({
   },
   componentDidUpdate:function() {
     this.initSurface();
+    if (this.props.scrollto) this.scrollToSelection();
   }
 });
 
