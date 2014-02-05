@@ -7,7 +7,7 @@ var bootstrap=Require("bootstrap");
 var $=Require('jquery');
 var controlpanel = React.createClass({
   getInitialState:function() {
-    return {saved:""}
+    return {saved:""};
   },
   clicktab:function(e) {
     //e.preventDefault();
@@ -40,11 +40,11 @@ var controlpanel = React.createClass({
     this.setState({saved:0});
   },
   onMarkup:function(markuptype) {
-    if (markuptype=="_clear_") return this.clearmarkup(); 
-    if (markuptype=="_export_") return this.exportMarkup();
-    if (markuptype=="_import_") return this.importMarkup();
+    if (markuptype==="_clear_") return this.clearmarkup(); 
+    if (markuptype==="_export_") return this.exportMarkup();
+    if (markuptype==="_import_") return this.importMarkup();
 
-    if (this.props.sellength==0) {
+    if (this.props.sellength===0) {
       this.props.onPage("clearMarkups",this.props.selstart,0);
     }
     this.props.onPage("addMarkup",this.props.selstart,this.props.sellength,{type:markuptype});
@@ -56,8 +56,8 @@ var controlpanel = React.createClass({
     this.props.onPage("clearRevisions",this.props.selstart,this.props.sellength);
   },
   onText:function(text) {
-    if (text=="_clear_") return this.clearRevision();
-    if (this.props.selstart==0) return; //cannot insert at beginning
+    if (text==="_clear_") return this.clearRevision();
+    if (this.props.selstart===0) return; //cannot insert at beginning
     this.props.onPage("addRevision",this.props.selstart,this.props.sellength,text);
   },
   onVersion:function(action,opts) {
@@ -72,7 +72,7 @@ var controlpanel = React.createClass({
        <div>
           <div ref="tagbuttons">
             <tagbuttons
-             disabled={this.props.sellength==0} 
+             disabled={this.props.sellength===0} 
              onMarkup={this.onMarkup} 
              saved={this.state.saved} />
           </div>
@@ -92,7 +92,8 @@ var controlpanel = React.createClass({
             />
           </div>
         </div>
-      )
+      );
+    /*
     return (
       <div>
         <ul className="nav nav-pills" >
@@ -103,7 +104,7 @@ var controlpanel = React.createClass({
         <div className="tab-content">
           <div className="tab-pane active"  data-id="tagbuttons" ref="tagbuttons">
             <tagbuttons
-             disabled={this.props.sellength==0} 
+             disabled={this.props.sellength===0} 
              onMarkup={this.onMarkup} 
              saved={this.state.saved} />
           </div>
@@ -124,8 +125,7 @@ var controlpanel = React.createClass({
           </div>
         </div>
       </div>
-    );
-  
+    ); */
   }
 });
 module.exports=controlpanel;

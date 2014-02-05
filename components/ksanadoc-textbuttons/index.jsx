@@ -3,7 +3,7 @@
 //var othercomponent=Require("other"); 
 var textbuttons = React.createClass({
   getInitialState:function() {
-      return {action:"delete",replacetext:""}
+      return {action:"delete",replacetext:""};
   },
   setreplacetext:function(e) {
     this.refs.textinput.getDOMNode().value=e.target.innerHTML;
@@ -24,14 +24,14 @@ var textbuttons = React.createClass({
       "insert":"在游標處新增",
       "modify":"選取區替換為",
       "delete":"刪除選取文字"
-    }[this.state.action]
+    }[this.state.action];
   },
   buttondisable:function() {
     var emptyinput=true;
     if (this.refs&&this.refs.textinput) {
-      emptyinput=this.refs.textinput.getDOMNode().value.length==0 
+      emptyinput=this.refs.textinput.getDOMNode().value.length===0 ;
     }
-    return this.props.selectedText.length==0 && emptyinput;
+    return this.props.selectedText.length===0 && emptyinput;
   },
   ontext:function() {
     this.props.onText(this.refs.textinput.getDOMNode().value);

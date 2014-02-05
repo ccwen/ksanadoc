@@ -3,10 +3,10 @@ var $=Require("jquery");
 var token = React.createClass({
   render:function() {
     if (this.props.replaceto)
-          return <span className={this.props.cls} data-to={this.props.replaceto} data-n={this.props.n}>{this.props.ch}</span>
-    else  return <span className={this.props.cls} data-n={this.props.n}>{this.props.ch}</span>
+          return <span className={this.props.cls} data-to={this.props.replaceto} data-n={this.props.n}>{this.props.ch}</span>;
+    else  return <span className={this.props.cls} data-n={this.props.n}>{this.props.ch}</span>;
   }
-})
+});
 var surface = React.createClass({
   moveCaret:function(node) {
     if (!node) return; 
@@ -31,24 +31,26 @@ var surface = React.createClass({
     var end=parseInt(e.getAttribute('data-n'),10);
     if (start==end && sel.anchorOffset==1) {
       //      this.setState({selstart:start+1,sellength:0});
-      this.props.onSelection(start+1,0);
-      return {selstart:start,sellength:length};
+      
+      return {start:start+1,len:0};
     }
     var length=end-start+1  ;
     if (length<0) {
             temp=end; end=start; start=end;
     }
     //this.setState({selstart:start,sellength:length});
-    this.props.onSelection(start,length);
+    //this.props.onSelection(start,length);
     sel.empty();
     this.refs.surface.getDOMNode().focus();
-    return {selstart:start,sellength:length};
+    return {start:start,len:length};
   },
   mouseup:function(e) {
     var sel=this.getSelection();
     if (e.target.getAttribute("class")=="link") {
-      var M=this.props.page.markupAt(sel.selstart);
+      var M=this.props.page.markupAt(sel.start);
       if (this.props.onLink) this.props.onLink(M[0].payload);
+    } else {
+      this.props.onSelection(sel.start,sel.len);
     }
   },
   keydown:function(evt) {
@@ -69,14 +71,14 @@ var surface = React.createClass({
       var R=page.revisionAt(i),replaceto="";
       if (i>=selstart && i<selstart+sellength) extraclass+=' selected';
       if (R.length) {
-        if (R[0].len==0) {
+        if (R[0].len===0) {
           extraclass+=" insert"; 
 //          replaceto=R[0].payload.text;
           xml.push(<span className={extraclass+" inserttext"}>{R[0].payload.text}</span>);
         } else  {
           if (R[0].payload.text) {
-            if (i>=R[0].start && i<R[0].start+R[0].len) extraclass+=" replace";  
-            if (i==R[0].start+R[0].len) {
+            if (i>=R[0].start && i<R[0].start+R[0].len) extraclass+=" replace"; 
+            if (i===R[0].start+R[0].len) {
               xml.push(<span className={extraclass+" replacetext"}>{R[0].payload.text}</span>);
             } 
           }
@@ -87,13 +89,16 @@ var surface = React.createClass({
 
       //naive solution, need to create many combination class
       //create dynamic stylesheet,concat multiple background image with ,
-      M.map(function(m){ markupclasses.push(m.payload.type)});
+      for (var j in M) {
+        markupclasses.push(M[j].payload.type);
+      }
+
       markupclasses.sort();
       var ch=I[i];
-      if (ch=="\n") {ch="\u21a9";extraclass+=' br'}
+      if (ch==="\n") {ch="\u21a9";extraclass+=' br';}
       classes=(extraclass+" "+markupclasses.join("_")).trim();
       xml.push(<token key={i} cls={classes} n={i} ch={ch} replaceto={replaceto}></token>);
-    };
+    }
     xml.push(<token key={I.length} n={I.length}/>);
     return xml;
   },  
@@ -102,8 +107,7 @@ var surface = React.createClass({
     var xml=this.toXML(this.props.page,opts);
     return (
       <div className="surface">
-            <div ref="surface" tabIndex="0" onKeyDown={this.keydown} onMouseUp={this.mouseup} 
-              >{xml}</div>
+            <div ref="surface" tabIndex="0" onKeyDown={this.keydown} onMouseUp={this.mouseup}>{xml}</div>
             <div ref="caretdiv" className="surface-caret-container">
                     <div ref="caret" className="surface-caret"></div>
             </div>
@@ -113,7 +117,7 @@ var surface = React.createClass({
   scrollToSelection:function() {
     var node = this.getDOMNode();
     var scrollto=$(this.refs.caretdiv.getDOMNode()).offset().top;
-    node.scrollTop=scrollto-100;
+    node.scrollTop=scrollto-200;
       
     //  $(this.refs.surface.getDOMNode()).scrollTop(scrollto);
   },

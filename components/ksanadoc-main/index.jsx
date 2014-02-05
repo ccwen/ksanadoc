@@ -12,7 +12,7 @@ var main = React.createClass({
     return {doc:doc, selstart:0, selectedTab: "tagbuttons",sellength:0, preview:false};
   },
   onSelection:function(start,len) {
-    this.setState({selstart:start,sellength:len})
+    this.setState({selstart:start,sellength:len});
   },
   onPage:function() {
     var args = [];

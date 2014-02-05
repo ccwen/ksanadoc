@@ -13,7 +13,7 @@ var childrenbutton = React.createClass({
       return <a onClick={gotopage} className="btn btn-primary" data-id={child}>{"#"+child}</a>;
     });
 
-    return <span><span>Children:</span>{buttons}</span>
+    return <span><span>Children:</span>{buttons}</span> ;
   }
 }); 
 var parentbutton = React.createClass({
@@ -23,7 +23,7 @@ var parentbutton = React.createClass({
   },
   render:function() {
     var disable=this.props.parentId?"":"disabled ";
-    return <a onClick={this.gotopage} className={disable+"btn btn-primary"} data-id={this.props.parentId}>{"←Parent#"+this.props.parentId}</a>
+    return <a onClick={this.gotopage} className={disable+"btn btn-primary"} data-id={this.props.parentId}>{"←Parent#"+this.props.parentId}</a> ;
   }
 });
 
